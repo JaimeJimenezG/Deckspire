@@ -1,0 +1,91 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  // overflow: hidden necesario para que las animaciones con translateX
+  // no provoquen scroll horizontal durante la transición
+  overflow: hidden;
+}
+
+// Contenedor de las vistas de fase. Ocupa el espacio restante tras la barra
+// de estado y actúa como contexto de posicionamiento para los phase-panels.
+.view-area {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// Wrapper de cada fase. Position absolute permite que el elemento saliente
+// y el entrante coexistan en el DOM durante el solapamiento de animaciones,
+// evitando saltos de layout.
+.phase-panel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+// Botón flotante (FAB) para abrir el visor del mazo
+// Colores basados en $text-gold (#d4a574 = 212,165,116) y $bg-darkest (#0a0a1a)
+.deck-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  background: rgba(10, 10, 26, 0.88);
+  color: var(--text-gold);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(212, 165, 116, 0.12);
+    border-color: var(--text-gold);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(212, 165, 116, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-gold);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// En móvil, el FAB se aleja del borde inferior para no solapar con la mano de cartas
+@media (max-width: 480px) {
+  .deck-fab {
+    bottom: 16px;
+    left: 16px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+// Landscape móvil: la mano ocupa la parte baja, subir el FAB para no ocultarse
+@media (max-height: 500px) and (orientation: landscape) {
+  .deck-fab {
+    bottom: 12px;
+    left: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}

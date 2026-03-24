@@ -1,0 +1,38 @@
+@use 'variables' as *;
+
+// === Reset & globals ===
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: $bg-darkest;
+  color: $text-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// === CSS custom properties (puente SCSS → runtime) ===
+:root {
+  --bg-darkest:     #{$bg-darkest};
+  --bg-dark:        #{$bg-dark};
+  --bg-medium:      #{$bg-medium};
+  --bg-light:       #{$bg-light};
+  --text-primary:   #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-gold:      #{$text-gold};
+  --color-attack:   #{$color-attack};
+  --color-skill:    #{$color-skill};
+  --color-power:    #{$color-power};
+  --color-health:   #{$color-health};
+  --color-block:    #{$color-block};
+  --color-energy:   #{$color-energy};
+}

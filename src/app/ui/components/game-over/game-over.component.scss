@@ -1,0 +1,307 @@
+// ── Base layout ──────────────────────────────────────────────────────────────
+
+.game-over {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 40%, #1a0505 0%, var(--bg-darkest) 70%);
+  overflow: hidden;
+  transition: background 0.6s ease;
+
+  &--victory {
+    background: radial-gradient(ellipse at 50% 40%, #1a1400 0%, var(--bg-darkest) 70%);
+  }
+}
+
+// ── Background orbs ───────────────────────────────────────────────────────────
+
+.game-over__bg-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.game-over__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.15;
+}
+
+.game-over__orb--1 {
+  width: 500px;
+  height: 500px;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-attack);
+
+  .game-over--victory & {
+    background: var(--text-gold);
+  }
+}
+
+.game-over__orb--2 {
+  width: 350px;
+  height: 350px;
+  bottom: -80px;
+  right: -80px;
+  background: var(--color-attack);
+  opacity: 0.08;
+
+  .game-over--victory & {
+    background: var(--text-gold);
+  }
+}
+
+.game-over__orb--3 {
+  width: 300px;
+  height: 300px;
+  bottom: -60px;
+  left: -60px;
+  background: var(--color-attack);
+  opacity: 0.06;
+
+  .game-over--victory & {
+    background: var(--text-gold);
+  }
+}
+
+// ── Main content panel ────────────────────────────────────────────────────────
+
+.game-over__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  animation: fade-in 0.6s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Icon ──────────────────────────────────────────────────────────────────────
+
+.game-over__icon {
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 24px rgba(200, 75, 49, 0.6));
+  animation: icon-pulse 3s ease-in-out infinite;
+
+  .game-over--victory & {
+    filter: drop-shadow(0 0 28px rgba(212, 165, 116, 0.7));
+  }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+// ── Typography ────────────────────────────────────────────────────────────────
+
+.game-over__title {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--color-attack);
+  text-shadow:
+    0 0 40px rgba(200, 75, 49, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.8);
+
+  .game-over--victory & {
+    color: var(--text-gold);
+    text-shadow:
+      0 0 40px rgba(212, 165, 116, 0.5),
+      0 4px 16px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.game-over__subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  max-width: 34ch;
+}
+
+// ── Stats grid ────────────────────────────────────────────────────────────────
+
+.game-over__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 2.5rem;
+  margin-block: 0.5rem;
+  padding: 0;
+}
+
+.game-over__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 5rem;
+}
+
+.game-over__stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.game-over__stat-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+
+  &--gold {
+    color: var(--text-gold);
+  }
+
+  &--hp {
+    color: var(--color-power);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.15em;
+  }
+}
+
+.game-over__stat-divider {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+
+.game-over__actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.game-over__btn {
+  padding: 0.875rem 2.5rem;
+  background: linear-gradient(135deg, var(--bg-medium), var(--bg-light));
+  border: 2px solid rgba(160, 160, 176, 0.3);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: rgba(160, 160, 176, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--menu {
+    background: transparent;
+    border-color: rgba(160, 160, 176, 0.2);
+    color: var(--text-secondary);
+
+    &:hover {
+      border-color: rgba(160, 160, 176, 0.5);
+      color: var(--text-primary);
+    }
+  }
+
+  &--victory {
+    border-color: rgba(212, 165, 116, 0.45);
+    color: var(--text-gold);
+
+    &:hover {
+      border-color: rgba(212, 165, 116, 0.85);
+      box-shadow: 0 6px 20px rgba(212, 165, 116, 0.2);
+    }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .game-over__content {
+    padding: 2rem 1.25rem;
+    gap: 1.125rem;
+  }
+
+  .game-over__icon {
+    font-size: 3.5rem;
+  }
+
+  .game-over__stats {
+    gap: 1rem 1.5rem;
+  }
+
+  .game-over__stat-value {
+    font-size: 1.6rem;
+  }
+
+  .game-over__btn {
+    padding: 0.75rem 1.75rem;
+    font-size: 0.9rem;
+  }
+
+  .game-over__orb--1 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .game-over__orb--2,
+  .game-over__orb--3 {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .game-over__content {
+    padding: 1rem 1.5rem;
+    gap: 0.75rem;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .game-over__icon {
+    font-size: 2.5rem;
+  }
+
+  .game-over__stats {
+    gap: 0.75rem 1.5rem;
+    margin-block: 0;
+  }
+}

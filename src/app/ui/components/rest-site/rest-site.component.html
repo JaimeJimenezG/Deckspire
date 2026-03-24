@@ -1,0 +1,126 @@
+<section class="rest-site">
+  <header class="rest-site__header">
+    <div class="rest-site__fire" aria-hidden="true">🔥</div>
+    <h2 class="rest-site__title">Hoguera</h2>
+    <p class="rest-site__subtitle">Un momento de descanso en la oscuridad</p>
+  </header>
+
+  <!-- Barra de vida del jugador -->
+  <div class="rest-site__hp" aria-label="Vida actual">
+    <span class="rest-site__hp-label">Vida</span>
+    <div class="rest-site__hp-bar" role="progressbar"
+         [attr.aria-valuenow]="player().hp"
+         [attr.aria-valuemax]="player().maxHp">
+      <div
+        class="rest-site__hp-fill"
+        [style.width.%]="player().maxHp > 0 ? (player().hp / player().maxHp) * 100 : 0"
+      ></div>
+    </div>
+    <span class="rest-site__hp-value">{{ player().hp }} / {{ player().maxHp }}</span>
+  </div>
+
+  @if (!actionDone()) {
+    <!-- Selector de acción -->
+    @if (selectedAction() === 'none') {
+      <div class="rest-site__options">
+        <!-- Opción: Descansar -->
+        <button class="rest-site__option rest-site__option--rest" (click)="selectRest()">
+          <span class="rest-site__option-icon" aria-hidden="true">❤️</span>
+          <div class="rest-site__option-body">
+            <span class="rest-site__option-name">Descansar</span>
+            <span class="rest-site__option-desc">Recupera {{ healAmount() }} HP</span>
+          </div>
+        </button>
+
+        <!-- Opción: Forjar -->
+        <button
+          class="rest-site__option rest-site__option--smith"
+          [class.rest-site__option--disabled]="upgradableCards().length === 0"
+          [disabled]="upgradableCards().length === 0"
+          (click)="selectSmith()"
+        >
+          <span class="rest-site__option-icon" aria-hidden="true">⚒️</span>
+          <div class="rest-site__option-body">
+            <span class="rest-site__option-name">Forjar</span>
+            <span class="rest-site__option-desc">
+              @if (upgradableCards().length > 0) {
+                Mejora una carta del mazo ({{ upgradableCards().length }} disponibles)
+              } @else {
+                No hay cartas que mejorar
+              }
+            </span>
+          </div>
+        </button>
+
+        <!-- Opción: Omitir -->
+        <button class="rest-site__option rest-site__option--skip" (click)="skipRestSite()">
+          <span class="rest-site__option-icon" aria-hidden="true">➡️</span>
+          <div class="rest-site__option-body">
+            <span class="rest-site__option-name">Omitir</span>
+            <span class="rest-site__option-desc">Continúa sin hacer nada</span>
+          </div>
+        </button>
+      </div>
+    }
+
+    <!-- Confirmación de descanso -->
+    @if (selectedAction() === 'rest') {
+      <div class="rest-site__confirm">
+        <p class="rest-site__confirm-text">
+          Recuperarás <strong class="rest-site__confirm-heal">{{ healAmount() }} HP</strong>
+          <span class="rest-site__confirm-range">({{ player().hp }} → {{ healedHp() }})</span>
+        </p>
+        <div class="rest-site__confirm-actions">
+          <button
+            class="rest-site__btn rest-site__btn--secondary"
+            (click)="cancelSelection()"
+          >
+            Volver
+          </button>
+          <button
+            class="rest-site__btn rest-site__btn--primary"
+            (click)="confirmRest()"
+          >
+            Descansar
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Selección de carta para forjar -->
+    @if (selectedAction() === 'smith') {
+      <div class="rest-site__smith">
+        <div class="rest-site__smith-header">
+          <p class="rest-site__smith-hint">Elige una carta para mejorar:</p>
+          <button
+            class="rest-site__btn rest-site__btn--secondary rest-site__btn--sm"
+            (click)="cancelSelection()"
+          >
+            Volver
+          </button>
+        </div>
+        <div class="rest-site__smith-cards">
+          @for (item of upgradableCards(); track item.idx) {
+            <app-card
+              [card]="item.card"
+              [playable]="true"
+              (cardClick)="smithCard(item.idx)"
+            />
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <!-- Acción completada -->
+    <div class="rest-site__done">
+      <span class="rest-site__done-icon" aria-hidden="true">✔</span>
+      <p class="rest-site__done-text">Listo para continuar tu ascenso.</p>
+      <button
+        class="rest-site__btn rest-site__btn--primary"
+        (click)="continueJourney()"
+      >
+        Continuar
+      </button>
+    </div>
+  }
+</section>

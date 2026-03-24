@@ -1,0 +1,83 @@
+<div class="combat-view">
+
+  <!-- Escenario 16:9 centrado: el bitmap del canvas coincide con el CSS y no se estira -->
+  <div class="combat-view__stage-fill">
+    <div class="combat-view__stage">
+      <canvas #combatCanvas class="combat-view__canvas"></canvas>
+
+      @if (isTargeting()) {
+        <div
+          class="combat-view__targeting"
+          (click)="onCancelTargeting()"
+          aria-label="Seleccionar objetivo — clic fuera para cancelar"
+        >
+          <p class="targeting__hint">Elige un objetivo</p>
+
+          @for (slot of enemyTargetSlots(); track slot.index) {
+            @if (slot.enemy.hp > 0) {
+              <button
+                class="targeting__enemy"
+                [style.left.%]="slot.xPct"
+                [style.top.%]="slot.yPct"
+                (click)="$event.stopPropagation(); onTargetSelected(slot.index)"
+                [attr.aria-label]="'Atacar enemigo ' + (slot.index + 1)"
+              >
+                <span class="targeting__reticle" aria-hidden="true">⊕</span>
+              </button>
+            }
+          }
+        </div>
+      }
+
+      @if (hoveredEnemyDuringDrag() !== null) {
+        @for (slot of enemyTargetSlots(); track slot.index) {
+          @if (slot.index === hoveredEnemyDuringDrag() && slot.enemy.hp > 0) {
+            <div
+              class="combat-view__drag-reticle"
+              [style.left.%]="slot.xPct"
+              [style.top.%]="slot.yPct"
+              aria-hidden="true"
+            >
+              <span class="drag-reticle__ring"></span>
+              <span class="drag-reticle__symbol">⊕</span>
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+
+  <!-- ── HUD Angular superpuesto ─────────────────────────────────────────── -->
+  <div class="combat-view__hud" aria-label="Estado del combate">
+    <!-- Botón fin de turno (esquina inferior derecha) -->
+    <div class="hud__actions">
+      @if (isPlayerTurn() || isEnemyTurn()) {
+        <button
+          class="hud__end-turn"
+          [class.hud__end-turn--active]="isPlayerTurn()"
+          [class.hud__end-turn--enemy]="isEnemyTurn()"
+          [disabled]="!isPlayerTurn()"
+          (click)="onEndTurn()"
+          aria-label="Finalizar turno del jugador"
+        >
+          @if (isPlayerTurn()) {
+            Fin de turno
+          } @else {
+            Turno enemigo…
+          }
+        </button>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── Mano de cartas (franja inferior) ────────────────────────────────── -->
+  <div class="combat-view__hand">
+    <app-hand
+      [dropZones]="enemyDropZones()"
+      (cardPlayed)="onCardPlayed($event)"
+      (hoveredDropZone)="onHoveredDropZone($event)"
+    />
+  </div>
+
+</div>

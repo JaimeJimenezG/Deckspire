@@ -1,0 +1,180 @@
+.reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  padding: 48px 32px;
+  min-height: 100%;
+  background: linear-gradient(to bottom, var(--bg-darkest), #0d0d22, var(--bg-dark));
+  color: var(--text-primary);
+}
+
+// ── Cabecera ─────────────────────────────────────────────────────────────────
+
+.reward__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.reward__title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-gold);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 20px rgba(212, 165, 116, 0.4);
+  animation: glow-in 0.6s ease-out;
+}
+
+.reward__subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.reward__gold {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212, 165, 116, 0.12);
+  border: 1px solid rgba(212, 165, 116, 0.35);
+  border-radius: 24px;
+  padding: 8px 22px;
+  margin-top: 4px;
+}
+
+.reward__gold-icon {
+  font-size: 22px;
+}
+
+.reward__gold-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-gold);
+  letter-spacing: 0.03em;
+}
+
+// ── Sección de cartas ─────────────────────────────────────────────────────────
+
+.reward__cards-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.reward__section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.reward__cards {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+// ── Botón de omitir ───────────────────────────────────────────────────────────
+
+.reward__skip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 10px 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--text-primary);
+  }
+}
+
+// ── Estado vacío ──────────────────────────────────────────────────────────────
+
+.reward__empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 64px 0;
+}
+
+// ── Animación de entrada ──────────────────────────────────────────────────────
+
+@keyframes glow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+    text-shadow: none;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    text-shadow: 0 0 20px rgba(212, 165, 116, 0.4);
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .reward {
+    padding: 28px 16px;
+    gap: 22px;
+  }
+
+  .reward__title {
+    font-size: 26px;
+  }
+
+  .reward__gold {
+    padding: 6px 16px;
+  }
+
+  .reward__gold-amount {
+    font-size: 18px;
+  }
+
+  .reward__cards {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .reward {
+    padding: 18px 12px;
+    gap: 16px;
+  }
+
+  .reward__cards {
+    gap: 12px;
+  }
+}
+
+// Landscape móvil: usar layout horizontal
+@media (max-height: 500px) and (orientation: landscape) {
+  .reward {
+    padding: 14px 20px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .reward__title {
+    font-size: 22px;
+  }
+
+  .reward__cards {
+    gap: 14px;
+  }
+}

@@ -1,0 +1,94 @@
+<div class="game-over" [class.game-over--victory]="isVictory()">
+
+  <!-- Orbes de fondo decorativos -->
+  <div class="game-over__bg-orbs" aria-hidden="true">
+    <span class="game-over__orb game-over__orb--1"></span>
+    <span class="game-over__orb game-over__orb--2"></span>
+    <span class="game-over__orb game-over__orb--3"></span>
+  </div>
+
+  <main class="game-over__content">
+
+    <!-- Icono central -->
+    <div class="game-over__icon" aria-hidden="true">
+      @if (isVictory()) {
+        👑
+      } @else {
+        💀
+      }
+    </div>
+
+    <!-- Título y subtítulo -->
+    <h1 class="game-over__title">
+      @if (isVictory()) {
+        ¡Victorioso!
+      } @else {
+        Derrotado
+      }
+    </h1>
+    <p class="game-over__subtitle">
+      @if (isVictory()) {
+        Has conquistado la mazmorra. La leyenda continúa.
+      } @else {
+        La mazmorra te ha vencido esta vez.
+      }
+    </p>
+
+    <!-- Estadísticas de la run -->
+    <dl class="game-over__stats" aria-label="Estadísticas de la partida">
+
+      <div class="game-over__stat">
+        <dt class="game-over__stat-label">Planta</dt>
+        <dd class="game-over__stat-value">{{ floor() }}</dd>
+      </div>
+
+      <div class="game-over__stat">
+        <dt class="game-over__stat-label">Acto</dt>
+        <dd class="game-over__stat-value">{{ act() }}</dd>
+      </div>
+
+      <div class="game-over__stat">
+        <dt class="game-over__stat-label">Oro</dt>
+        <dd class="game-over__stat-value game-over__stat-value--gold">{{ gold() }}</dd>
+      </div>
+
+      <div class="game-over__stat">
+        <dt class="game-over__stat-label">Cartas</dt>
+        <dd class="game-over__stat-value">{{ deckSize() }}</dd>
+      </div>
+
+      <div class="game-over__stat">
+        <dt class="game-over__stat-label">Reliquias</dt>
+        <dd class="game-over__stat-value">{{ relicCount() }}</dd>
+      </div>
+
+      @if (isVictory()) {
+        <div class="game-over__stat">
+          <dt class="game-over__stat-label">HP final</dt>
+          <dd class="game-over__stat-value game-over__stat-value--hp">
+            {{ playerHp().current }}<span class="game-over__stat-divider">/</span>{{ playerHp().max }}
+          </dd>
+        </div>
+      }
+
+    </dl>
+
+    <!-- Acciones -->
+    <div class="game-over__actions">
+      <button
+        class="game-over__btn game-over__btn--menu"
+        (click)="onReturnToMenu()"
+        aria-label="Volver al menú principal">
+        Volver al menú
+      </button>
+      <button
+        class="game-over__btn game-over__btn--new"
+        [class.game-over__btn--victory]="isVictory()"
+        (click)="onNewGame()"
+        aria-label="Iniciar nueva partida">
+        Nueva partida
+      </button>
+    </div>
+
+  </main>
+</div>

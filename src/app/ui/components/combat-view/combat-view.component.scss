@@ -1,0 +1,429 @@
+@use 'variables' as *;
+
+// ── Colores específicos de este componente (no pertenecen a la paleta global) ─
+$color-victory: #f39c12;
+$color-defeat:  #7f8c8d;
+
+// ── Host ─────────────────────────────────────────────────────────────────────
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// ── Contenedor principal ──────────────────────────────────────────────────────
+
+.combat-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: $bg-darkest;
+  overflow: hidden;
+  // Tamaño del escenario contenido (16:9) respecto al área útil de combate
+  container-type: size;
+  container-name: combat;
+}
+
+// Área sobre la que se centra el lienzo; la mano sigue anclada al borde inferior de la vista
+.combat-view__stage-fill {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Encaja 16:9 dentro del contenedor sin deformar (bandas laterales o superior/inferior)
+.combat-view__stage {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100cqw, calc(100cqh * 16 / 9));
+  height: min(100cqh, calc(100cqw * 9 / 16));
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.combat-view__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  vertical-align: top;
+}
+
+// ── HUD overlay: non-blocking salvo los botones ───────────────────────────────
+
+.combat-view__hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px;
+  pointer-events: none; // deja el canvas y la mano recibir eventos
+  z-index: 10;
+}
+
+// ── Stats del jugador ─────────────────────────────────────────────────────────
+
+.hud__stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 360px;
+}
+
+.hud__stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+
+  &--hp {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 148px;
+  }
+}
+
+.hud__hp-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hud__hp-fill {
+  height: 100%;
+  background: linear-gradient(to right, #8b0000, $color-health);
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}
+
+.hud__hp-text {
+  font-size: 11px;
+  color: rgba($text-primary, 0.85);
+  font-weight: 600;
+}
+
+// ── Badges (bloqueo, energía) ─────────────────────────────────────────────────
+
+.hud__badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  font-size: 14px;
+  font-weight: 700;
+
+  &--block {
+    color: $color-block;
+    border-color: rgba($color-block, 0.35);
+  }
+
+  &--energy {
+    color: $color-energy;
+    border-color: rgba($color-energy, 0.35);
+  }
+}
+
+.hud__badge-icon {
+  font-size: 15px;
+}
+
+.hud__badge-value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+// ── Botón fin de turno ────────────────────────────────────────────────────────
+
+.hud__actions {
+  display: flex;
+  justify-content: flex-end;
+  // Espacio sobre la franja de la mano (~244 px + margen inferior de la mano)
+  padding-bottom: 280px;
+  pointer-events: all; // reactiva eventos solo en este bloque
+}
+
+.hud__end-turn {
+  padding: 10px 26px;
+  border: 2px solid rgba($text-gold, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.72);
+  color: rgba($text-primary, 0.4);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+
+  // Turno del jugador: botón activo
+  &--active {
+    border-color: $text-gold;
+    color: $text-gold;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba($text-gold, 0.25);
+
+    &:hover:not(:disabled) {
+      background: rgba($text-gold, 0.15);
+      box-shadow: 0 0 24px rgba($text-gold, 0.5);
+      transform: translateY(-2px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 0 10px rgba($text-gold, 0.3);
+    }
+  }
+
+  // Turno enemigo
+  &--enemy {
+    border-color: rgba($color-attack, 0.5);
+    color: rgba($color-attack, 0.7);
+  }
+
+  // Victoria
+  &--victory {
+    border-color: $color-victory;
+    color: $color-victory;
+    cursor: default;
+    box-shadow: 0 0 18px rgba($color-victory, 0.4);
+    animation: victory-glow 1.5s ease-in-out infinite;
+  }
+
+  // Derrota
+  &--defeat {
+    border-color: rgba($color-defeat, 0.5);
+    color: $color-defeat;
+    cursor: default;
+  }
+}
+
+@keyframes victory-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba($color-victory, 0.4); }
+  50%       { box-shadow: 0 0 30px rgba($color-victory, 0.7); }
+}
+
+// ── Overlay de selección de objetivo ─────────────────────────────────────────
+
+.combat-view__targeting {
+  position: absolute;
+  inset: 0;
+  z-index: 15; // entre canvas (0) y mano (20)
+  background: rgba(0, 0, 0, 0.22);
+  animation: targeting-in 120ms ease;
+  cursor: default;
+}
+
+.targeting__hint {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 5px 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 80, 80, 0.5);
+  color: rgba(255, 160, 160, 0.95);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.targeting__enemy {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: rgba(255, 60, 60, 0.18);
+  border: 2px solid rgba(255, 80, 80, 0.75);
+  cursor: crosshair;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, transform 120ms ease, border-color 120ms ease;
+  animation: reticle-pulse 1.2s ease-in-out infinite;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 60, 60, 0.45);
+    border-color: rgba(255, 120, 120, 1);
+    transform: translate(-50%, -50%) scale(1.18);
+    animation: none;
+    outline: none;
+  }
+
+  &:active {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+.targeting__reticle {
+  font-size: 26px;
+  color: rgba(255, 130, 130, 0.9);
+  pointer-events: none;
+  line-height: 1;
+}
+
+@keyframes targeting-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes reticle-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 80, 80, 0.5); }
+  50%       { box-shadow: 0 0 0 8px rgba(255, 80, 80, 0); }
+}
+
+// ── Reticula drag-to-enemy ────────────────────────────────────────────────────
+
+.combat-view__drag-reticle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 14; // encima del canvas, debajo del HUD y la mano
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-reticle__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2.5px solid rgba($color-attack, 0.9);
+  background: rgba($color-attack, 0.12);
+  animation: drag-reticle-expand 0.45s ease-out forwards;
+}
+
+.drag-reticle__symbol {
+  font-size: 30px;
+  color: rgba($color-attack, 0.95);
+  line-height: 1;
+  text-shadow: 0 0 12px rgba($color-attack, 0.8);
+  animation: drag-reticle-symbol-in 0.2s ease-out forwards;
+}
+
+@keyframes drag-reticle-expand {
+  0%   { transform: scale(0.5); opacity: 0; box-shadow: 0 0 0 0 rgba($color-attack, 0.6); }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 10px rgba($color-attack, 0); }
+}
+
+@keyframes drag-reticle-symbol-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+// ── Franja de la mano ─────────────────────────────────────────────────────────
+
+.combat-view__hand {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .combat-view__hud {
+    padding: 8px 10px;
+  }
+
+  .hud__stats {
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .hud__stat {
+    padding: 4px 8px;
+    font-size: 11px;
+
+    &--hp {
+      min-width: 110px;
+    }
+  }
+
+  .hud__badge {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .hud__badge-icon {
+    font-size: 12px;
+  }
+
+  .hud__badge-value {
+    font-size: 12px;
+  }
+
+  .hud__actions {
+    padding-bottom: 240px;
+  }
+
+  .hud__end-turn {
+    padding: 8px 16px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+}
+
+// Landscape móvil: pantalla baja, compactar el HUD y reducir espacio bajo el botón
+@media (max-height: 500px) and (orientation: landscape) {
+  .combat-view__hand {
+    bottom: 8px;
+  }
+
+  .combat-view__hud {
+    padding: 6px 10px;
+  }
+
+  .hud__stat {
+    padding: 3px 7px;
+    font-size: 11px;
+
+    &--hp {
+      min-width: 100px;
+    }
+  }
+
+  .hud__actions {
+    padding-bottom: 168px;
+  }
+
+  .hud__end-turn {
+    padding: 6px 14px;
+    font-size: 11px;
+  }
+}

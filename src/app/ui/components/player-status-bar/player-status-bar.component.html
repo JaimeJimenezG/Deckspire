@@ -1,0 +1,83 @@
+<div class="status-bar">
+
+  <!-- ── Sección izquierda: HP + Bloqueo ─────────────────────────────── -->
+  <div class="status-bar__section status-bar__section--left">
+
+    <div class="hp-group">
+      <span class="hp-icon">♥</span>
+      <div class="hp-bar-wrap" [attr.aria-label]="'HP: ' + player().hp + ' / ' + player().maxHp">
+        <div
+          class="hp-bar__fill"
+          [ngClass]="hpColorClass()"
+          [style.width.%]="hpPercent()"
+        ></div>
+      </div>
+      <span class="hp-text">{{ player().hp }}<span class="hp-text__max">/{{ player().maxHp }}</span></span>
+    </div>
+
+    @if (showBlock()) {
+      <div class="stat-chip stat-chip--block" title="Bloqueo">
+        <span class="stat-chip__icon">🛡</span>
+        <span class="stat-chip__value">{{ player().block }}</span>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Sección central: efectos de estado ──────────────────────────── -->
+  <div class="status-bar__section status-bar__section--center">
+
+    @for (effect of activeBuffs(); track effect.type) {
+      <div
+        class="status-badge status-badge--buff"
+        [title]="statusName(effect)"
+      >
+        <span class="status-badge__name">{{ statusName(effect) }}</span>
+        <span class="status-badge__stacks">{{ effect.stacks }}</span>
+      </div>
+    }
+
+    @for (effect of activeDebuffs(); track effect.type) {
+      <div
+        class="status-badge status-badge--debuff"
+        [title]="statusName(effect)"
+      >
+        <span class="status-badge__name">{{ statusName(effect) }}</span>
+        <span class="status-badge__stacks">{{ effect.stacks }}</span>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Sección derecha: Energía / Oro / Planta / Reliquias ─────────── -->
+  <div class="status-bar__section status-bar__section--right">
+
+    @if (showEnergy()) {
+      <div class="stat-chip stat-chip--energy" title="Energía">
+        <span class="stat-chip__icon">⚡</span>
+        <span class="stat-chip__value">{{ player().energy }}<span class="stat-chip__max">/{{ player().maxEnergy }}</span></span>
+      </div>
+    }
+
+    <div class="stat-chip stat-chip--gold" title="Oro">
+      <span class="stat-chip__icon">💰</span>
+      <span class="stat-chip__value">{{ gold() }}</span>
+    </div>
+
+    <div class="floor-info" title="Planta actual">
+      <span class="floor-info__floor">Piso {{ floor() }}</span>
+      <span class="floor-info__sep">·</span>
+      <span class="floor-info__act">Acto {{ act() }}</span>
+    </div>
+
+    @if (relics().length > 0) {
+      <div class="relics-list" title="Reliquias">
+        @for (relic of relics(); track relic) {
+          <span class="relic-chip">{{ relic }}</span>
+        }
+      </div>
+    }
+
+  </div>
+
+</div>

@@ -1,0 +1,124 @@
+<div class="map-container" #scrollContainer>
+
+  <!-- ── SVG principal ─────────────────────────────────────────────────── -->
+  <svg
+    class="map-svg"
+    [attr.width]="svgWidth"
+    [attr.height]="svgHeight"
+    [attr.viewBox]="'0 0 ' + svgWidth + ' ' + svgHeight"
+    aria-label="Mapa del acto"
+    role="img"
+    (mousemove)="onSvgMouseMove($event)"
+    (mouseleave)="onNodePointerLeave()"
+  >
+    <!-- ── Definiciones ──────────────────────────────────────────────── -->
+    <defs>
+
+      <!-- Filtro glow suave (nodos alcanzables y actuales) -->
+      <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+      <!-- Filtro glow fuerte (nodo actual) -->
+      <filter id="glow-strong" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+    </defs>
+
+    <!-- ── Capa 1: Conexiones bezier ──────────────────────────────────── -->
+    <g class="map-paths" aria-hidden="true">
+      @for (edge of edges(); track edge.id) {
+        <path
+          [attr.d]="edge.path"
+          class="map-path"
+          [class.map-path--visited]="edge.state === 'visited'"
+          [class.map-path--reachable]="edge.state === 'reachable'"
+          [class.map-path--future]="edge.state === 'future'"
+        />
+      }
+    </g>
+
+    <!-- ── Capa 2: Nodos ───────────────────────────────────────────────── -->
+    <g class="map-nodes">
+      @for (node of nodes(); track node.id) {
+        <g
+          class="map-node"
+          [class.map-node--unreachable]="node.nodeState === 'unreachable'"
+          [class.map-node--reachable]="node.nodeState === 'reachable'"
+          [class.map-node--current]="node.nodeState === 'current'"
+          [class.map-node--visited]="node.nodeState === 'visited'"
+          [attr.transform]="'translate(' + node.x + ',' + node.y + ')'"
+          [attr.role]="node.nodeState === 'reachable' ? 'button' : 'img'"
+          [attr.aria-label]="node.label"
+          [attr.tabindex]="node.nodeState === 'reachable' ? 0 : -1"
+          (click)="onNodeClick(node)"
+          (pointerenter)="onNodePointerEnter(node.id)"
+          (pointerleave)="onNodePointerLeave()"
+          (keydown)="onNodeKeyDown($event, node)"
+        >
+          <!-- Anillo pulsante exterior (solo nodo actual) -->
+          @if (node.nodeState === 'current') {
+            <circle
+              class="node-ring"
+              [attr.r]="node.radius + 8"
+              [attr.stroke]="node.color"
+            />
+          }
+
+          <!-- Círculo de fondo del nodo -->
+          <circle
+            class="node-bg"
+            [attr.r]="node.radius"
+            [attr.stroke]="node.color"
+          />
+
+          <!-- Icono del tipo de nodo -->
+          <text
+            class="node-icon"
+            text-anchor="middle"
+            dominant-baseline="central"
+            [attr.font-size]="node.fontSize"
+            [attr.fill]="node.color"
+          >{{ node.icon }}</text>
+
+          <!-- Punto de visitado (esquina superior derecha) -->
+          @if (node.nodeState === 'visited') {
+            <circle
+              class="node-visited-dot"
+              [attr.cx]="node.radius - 4"
+              [attr.cy]="-(node.radius - 4)"
+              r="4"
+            />
+          }
+
+          <!-- Título SVG nativo (accesibilidad) -->
+          <title>{{ node.label }}</title>
+        </g>
+      }
+    </g>
+
+  </svg>
+
+  <!-- ── Tooltip HTML (position: fixed, sigue al cursor) ─────────────── -->
+  @if (tooltipData(); as tt) {
+    <div
+      class="map-tooltip"
+      [style.left.px]="tt.x + 16"
+      [style.top.px]="tt.y - 44"
+      role="tooltip"
+    >
+      <span class="map-tooltip__icon">{{ tt.icon }}</span>
+      <span class="map-tooltip__label">{{ tt.label }}</span>
+    </div>
+  }
+
+</div>

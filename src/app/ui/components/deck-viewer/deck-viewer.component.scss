@@ -1,0 +1,262 @@
+// Borde sutil para separadores internos (no existe como CSS var global)
+$border-dim: rgba(255, 255, 255, 0.1);
+
+// ── Backdrop ────────────────────────────────────────────────────────────────
+.deck-viewer__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  animation: backdrop-in 0.18s ease;
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ── Panel modal ─────────────────────────────────────────────────────────────
+.deck-viewer__panel {
+  position: relative;
+  width: min(92vw, 860px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--bg-medium), var(--bg-darkest));
+  border: 1px solid $border-dim;
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  animation: panel-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+// ── Cabecera ─────────────────────────────────────────────────────────────────
+.deck-viewer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid $border-dim;
+  flex-shrink: 0;
+}
+
+.deck-viewer__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-gold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deck-viewer__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: rgba(255, 215, 64, 0.15);
+  border: 1px solid rgba(255, 215, 64, 0.35);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-gold);
+}
+
+.deck-viewer__close {
+  background: none;
+  border: 1px solid $border-dim;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px 10px;
+  line-height: 1;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-gold);
+    outline-offset: 2px;
+  }
+}
+
+// ── Barra de filtros ─────────────────────────────────────────────────────────
+.deck-viewer__filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+  border-bottom: 1px solid $border-dim;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.deck-viewer__filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid $border-dim;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-gold);
+    outline-offset: 2px;
+  }
+
+  // Filtro activo: fondo sólido por tipo
+  &--active {
+    color: #fff;
+    border-color: currentColor;
+
+    &.deck-viewer__filter-btn--attack {
+      background: rgba(200, 75, 49, 0.35);
+      border-color: var(--color-attack);
+      color: var(--color-attack);
+    }
+
+    &.deck-viewer__filter-btn--skill {
+      background: rgba(107, 127, 215, 0.25);
+      border-color: var(--color-skill);
+      color: var(--color-skill);
+    }
+
+    &.deck-viewer__filter-btn--power {
+      background: rgba(46, 184, 114, 0.25);
+      border-color: var(--color-power);
+      color: var(--color-power);
+    }
+
+    // Botón "Todas" activo: dorado
+    &:not(.deck-viewer__filter-btn--attack):not(.deck-viewer__filter-btn--skill):not(.deck-viewer__filter-btn--power) {
+      background: rgba(255, 215, 64, 0.15);
+      border-color: var(--text-gold);
+      color: var(--text-gold);
+    }
+  }
+}
+
+.deck-viewer__filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+// ── Cuadrícula de cartas ─────────────────────────────────────────────────────
+.deck-viewer__grid {
+  flex: 1;
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-content: flex-start;
+
+  // Scrollbar estilizada
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+.deck-viewer__card-wrapper {
+  flex-shrink: 0;
+}
+
+.deck-viewer__empty {
+  width: 100%;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 32px 0;
+  margin: 0;
+  opacity: 0.6;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .deck-viewer__panel {
+    width: 96vw;
+    max-height: 90vh;
+    border-radius: 10px;
+  }
+
+  .deck-viewer__header {
+    padding: 14px 16px 12px;
+  }
+
+  .deck-viewer__title {
+    font-size: 15px;
+  }
+
+  .deck-viewer__filters {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .deck-viewer__filter-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .deck-viewer__grid {
+    padding: 14px 14px 18px;
+    gap: 12px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .deck-viewer__panel {
+    max-height: 95vh;
+    width: min(96vw, 860px);
+  }
+}

@@ -1,0 +1,232 @@
+@use 'variables' as *;
+
+// ── Color específico del mapa (no pertenece a la paleta global) ───────────────
+$bg-map-top: #0f0f23;
+
+// ── Host ─────────────────────────────────────────────────────────────────────
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+// ── Contenedor con scroll vertical ───────────────────────────────────────────
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  background: linear-gradient(to top, $bg-darkest, $bg-map-top, $bg-dark);
+
+  // Scrollbar discreta
+  scrollbar-width: thin;
+  scrollbar-color: rgba($text-gold, 0.25) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba($text-gold, 0.25);
+    border-radius: 3px;
+  }
+}
+
+.map-svg {
+  display: block;
+  // Centrado horizontal cuando el SVG es más estrecho que el contenedor
+  margin: 0 auto;
+  // Suaviza la transformación de nodos
+  will-change: transform;
+  // Escalar a pantalla cuando el SVG es más ancho que el viewport
+  max-width: 100%;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Móvil portrait: el SVG (624 px) es más ancho que la pantalla;
+// forzar escala proporcional gracias al viewBox que ya está presente en el template.
+@media (max-width: 640px) {
+  .map-svg {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+// Pantalla extra pequeña: aumentar padding del contenedor para que los nodos
+// en los extremos no queden pegados al borde.
+@media (max-width: 400px) {
+  .map-container {
+    padding: 0 4px;
+  }
+}
+
+// Tooltip: en móvil quitar posición absoluta y mostrar en la parte inferior
+// para evitar que se salga del viewport.
+@media (max-width: 480px) {
+  .map-tooltip {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+}
+
+// ── Capa 1: Conexiones bezier ─────────────────────────────────────────────────
+
+.map-path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  pointer-events: none;
+  transition: opacity 0.4s ease, stroke 0.4s ease;
+
+  // Visitado: línea sólida dorada
+  &--visited {
+    stroke: $text-gold;
+    opacity: 1;
+  }
+
+  // Alcanzable: línea punteada animada
+  &--reachable {
+    stroke: #8899bb;
+    opacity: 0.65;
+    stroke-dasharray: 6 4;
+    animation: dash-flow 1.2s linear infinite;
+  }
+
+  // Futuro: muy tenue
+  &--future {
+    stroke: #2a3a4a;
+    opacity: 0.18;
+  }
+}
+
+@keyframes dash-flow {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -20; }
+}
+
+// ── Capa 2: Nodos ─────────────────────────────────────────────────────────────
+
+.map-node {
+  transition: filter 0.3s ease, opacity 0.3s ease;
+
+  // ── Unreachable: oscuro y sin interacción ──────────────────────────────────
+  &--unreachable {
+    opacity: 0.22;
+    filter: grayscale(0.9);
+    pointer-events: none;
+  }
+
+  // ── Reachable: brillante, pulsante, cursor pointer ─────────────────────────
+  &--reachable {
+    cursor: pointer;
+    animation: glow-pulse 1.6s ease-in-out infinite;
+
+    &:hover,
+    &:focus-visible {
+      filter: url(#glow-strong);
+      outline: none;
+    }
+  }
+
+  // ── Current: glow fuerte fijo ─────────────────────────────────────────────
+  &--current {
+    filter: url(#glow-strong);
+  }
+
+  // ── Visited: ligeramente atenuado ─────────────────────────────────────────
+  &--visited {
+    opacity: 0.65;
+    pointer-events: none;
+  }
+}
+
+// Pulso de brillo: solo filter, sin scale — evita que el nodo salga del viewBox
+@keyframes glow-pulse {
+  0%, 100% { filter: url(#glow); }
+  50%       { filter: url(#glow-strong); }
+}
+
+// ── Círculo de fondo del nodo ─────────────────────────────────────────────────
+
+.node-bg {
+  fill: rgba($bg-darkest, 0.88);
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+
+  .map-node--reachable:hover & {
+    fill: rgba(30, 30, 60, 0.95);
+  }
+}
+
+// ── Anillo exterior pulsante (nodo actual) ────────────────────────────────────
+
+.node-ring {
+  fill: none;
+  stroke-width: 1.5;
+  animation: ring-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+// ── Icono SVG del tipo de nodo ────────────────────────────────────────────────
+
+.node-icon {
+  pointer-events: none;
+  user-select: none;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;
+  font-weight: 600;
+}
+
+// ── Punto de nodo visitado ────────────────────────────────────────────────────
+
+.node-visited-dot {
+  fill: $text-gold;
+  opacity: 0.9;
+}
+
+// ── Tooltip HTML ──────────────────────────────────────────────────────────────
+
+.map-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: rgba($bg-darkest, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-primary;
+  white-space: nowrap;
+  // Entrada suave
+  animation: tooltip-in 0.12s ease-out;
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.map-tooltip__icon {
+  font-size: 14px;
+}
+
+.map-tooltip__label {
+  color: $text-gold;
+}

@@ -1,0 +1,371 @@
+// === Layout principal ===
+.menu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: radial-gradient(ellipse at 50% 20%, var(--bg-dark) 0%, var(--bg-darkest) 70%);
+  overflow: hidden;
+}
+
+// === Esferas decorativas de fondo ===
+.menu__bg-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.menu__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+}
+
+.menu__orb--1 {
+  width: 500px;
+  height: 500px;
+  top: -100px;
+  left: -100px;
+  background: var(--color-skill);
+}
+
+.menu__orb--2 {
+  width: 400px;
+  height: 400px;
+  bottom: -80px;
+  right: -80px;
+  background: var(--color-attack);
+}
+
+.menu__orb--3 {
+  width: 300px;
+  height: 300px;
+  top: 40%;
+  left: 60%;
+  background: var(--color-energy);
+}
+
+// === Cabecera / Titulo ===
+.menu__header {
+  text-align: center;
+  z-index: 1;
+}
+
+.menu__title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.menu__title {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-shadow:
+    0 0 40px rgba(107, 127, 215, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+}
+
+.menu__title-accent {
+  color: var(--text-gold);
+  text-shadow:
+    0 0 32px rgba(212, 165, 116, 0.6),
+    0 4px 16px rgba(0, 0, 0, 0.8);
+}
+
+.menu__subtitle {
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  font-weight: 400;
+}
+
+// === Botones de accion ===
+.menu__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  max-width: 340px;
+  z-index: 1;
+}
+
+.menu__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.9rem 2rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+  user-select: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  &:not(:disabled):hover {
+    transform: translateY(-2px);
+  }
+
+  &:not(:disabled):active {
+    transform: translateY(0);
+  }
+
+  // Primary: Nueva partida
+  &--primary {
+    background: linear-gradient(135deg, var(--color-attack), #a33820);
+    border-color: #e05a3c;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(200, 75, 49, 0.35);
+
+    &:not(:disabled):hover {
+      background: linear-gradient(135deg, #e05a3c, var(--color-attack));
+      box-shadow: 0 6px 28px rgba(200, 75, 49, 0.55);
+    }
+  }
+
+  // Secondary: Continuar
+  &--secondary {
+    background: linear-gradient(135deg, var(--bg-medium), var(--bg-light));
+    border-color: var(--text-gold);
+    color: var(--text-gold);
+    box-shadow: 0 4px 16px rgba(212, 165, 116, 0.2);
+
+    &:not(:disabled):hover {
+      background: linear-gradient(135deg, #1a2a50, #154070);
+      box-shadow: 0 6px 24px rgba(212, 165, 116, 0.4);
+    }
+  }
+
+  // Tertiary: Estadisticas
+  &--tertiary {
+    background: transparent;
+    border-color: rgba(160, 160, 176, 0.3);
+    color: var(--text-secondary);
+
+    &:not(:disabled):hover {
+      border-color: rgba(160, 160, 176, 0.7);
+      color: var(--text-primary);
+    }
+
+    &--active,
+    &.menu__btn--active {
+      border-color: var(--color-skill);
+      color: var(--color-skill);
+      background: rgba(107, 127, 215, 0.1);
+    }
+  }
+}
+
+.menu__btn-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+// === Panel de estadisticas ===
+.menu__stats {
+  width: 100%;
+  max-width: 380px;
+  background: rgba(22, 33, 62, 0.85);
+  border: 1px solid rgba(107, 127, 215, 0.3);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  z-index: 1;
+  animation: stats-in 0.2s ease;
+}
+
+@keyframes stats-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu__stats-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-skill);
+  margin-bottom: 0.875rem;
+}
+
+.menu__stats-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.menu__stat-label {
+  color: var(--text-secondary);
+}
+
+.menu__stat-value {
+  font-weight: 700;
+  color: var(--text-primary);
+
+  &--win   { color: var(--color-power); }
+  &--loss  { color: var(--color-attack); }
+  &--gold  { color: var(--text-gold); }
+}
+
+.menu__stats-winrate {
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(107, 127, 215, 0.2);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: right;
+
+  strong {
+    color: var(--text-gold);
+    font-size: 1rem;
+  }
+}
+
+.menu__stats-empty {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+// === Footer ===
+.menu__footer {
+  position: absolute;
+  bottom: 1rem;
+  z-index: 1;
+}
+
+.menu__version {
+  font-size: 0.7rem;
+  color: rgba(160, 160, 176, 0.4);
+  letter-spacing: 0.05em;
+}
+
+// === Responsive ===
+
+@media (max-width: 480px) {
+  .menu {
+    gap: 1.25rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .menu__orb--1 {
+    width: 280px;
+    height: 280px;
+  }
+
+  .menu__orb--2 {
+    width: 220px;
+    height: 220px;
+  }
+
+  .menu__orb--3 {
+    width: 180px;
+    height: 180px;
+  }
+
+  .menu__actions {
+    max-width: 100%;
+    gap: 0.625rem;
+  }
+
+  .menu__btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .menu__stats {
+    max-width: 100%;
+    padding: 1rem 1.125rem;
+  }
+}
+
+// Pantallas extra pequeñas: reducir gap del menú y ocultar orbes
+@media (max-width: 360px) {
+  .menu {
+    gap: 1rem;
+    padding: 1rem 0.75rem;
+  }
+
+  .menu__orb {
+    opacity: 0.07;
+  }
+
+  .menu__btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+// Landscape móvil: layout horizontal para aprovechar el ancho
+@media (max-height: 500px) and (orientation: landscape) {
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
+    overflow-y: auto;
+  }
+
+  .menu__header {
+    flex: 0 0 auto;
+  }
+
+  .menu__actions {
+    flex: 0 0 auto;
+    max-width: 280px;
+    gap: 0.5rem;
+  }
+
+  .menu__stats {
+    flex: 0 0 auto;
+    max-width: 300px;
+  }
+
+  .menu__footer {
+    display: none;
+  }
+}

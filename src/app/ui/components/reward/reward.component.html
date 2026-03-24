@@ -1,0 +1,36 @@
+<section class="reward">
+  @if (reward()) {
+    <header class="reward__header">
+      <h2 class="reward__title">¡Victoria!</h2>
+      <p class="reward__subtitle">Elige tu recompensa</p>
+
+      @if (reward()!.gold > 0) {
+        <div class="reward__gold" aria-label="Oro ganado">
+          <span class="reward__gold-icon" aria-hidden="true">💰</span>
+          <span class="reward__gold-amount">+{{ reward()!.gold }} oro</span>
+        </div>
+      }
+    </header>
+
+    <!-- Opciones de carta -->
+    <div class="reward__cards-section">
+      <h3 class="reward__section-title">Elige una carta:</h3>
+      <div class="reward__cards">
+        @for (card of reward()!.cardOptions; track card.id) {
+          <app-card
+            [card]="card"
+            [playable]="true"
+            (cardClick)="pickCard(card)"
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Acción de omitir -->
+    <button class="reward__skip" (click)="skip()">
+      Omitir recompensa de carta
+    </button>
+  } @else {
+    <p class="reward__empty">No hay recompensa activa.</p>
+  }
+</section>

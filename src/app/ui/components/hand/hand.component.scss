@@ -1,0 +1,216 @@
+// ============================================================
+// HandComponent styles
+// Fan layout, hover expansion, drag & drop feedback
+// ============================================================
+
+@use 'variables' as *;
+
+// ── Dimensiones de carta (deben coincidir con card.component.scss) ─────────────
+$card-width:  120px;
+$card-height: 180px;
+
+// ── Host element ──────────────────────────────────────────────────────────────
+
+:host {
+  display: block;
+  position: relative;
+  // Full-width strip at the bottom of the combat view
+  width: 100%;
+  // Height accommodates the tallest card plus the upward arc dip + hover lift
+  height: calc(#{$card-height} + 64px);
+  user-select: none;
+  pointer-events: none; // let children capture events
+}
+
+// ── Hand wrapper ──────────────────────────────────────────────────────────────
+
+.hand {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+
+  &--disabled {
+    // Subtle opacity reduction during enemy turn
+    .hand__slot {
+      filter: brightness(0.7) saturate(0.5);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+// ── Fan row ───────────────────────────────────────────────────────────────────
+
+.hand__fan {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  // Aire bajo el abanico (borde de la franja + cartas menos pegadas al borde)
+  padding-bottom: 22px;
+  pointer-events: none;
+}
+
+// ── Individual card slot ──────────────────────────────────────────────────────
+
+.hand__slot {
+  position: relative;
+  flex-shrink: 0;
+  // Overlap cards horizontally – the JS transform handles the actual X offset,
+  // negative margin collapses the flex spacing to near zero.
+  margin: 0 -#{$card-width * 0.5 - 4px};
+  // Rotate from the bottom-center of the card for a natural fan pivot
+  transform-origin: bottom center;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1),
+    z-index 0s,
+    filter 0.15s ease;
+  pointer-events: all;
+  cursor: grab;
+
+  // Hidden while a drag ghost is shown for this slot
+  &--dragging {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  // Grayed out when not enough energy
+  &--unaffordable {
+    filter: brightness(0.55) saturate(0.3);
+    cursor: not-allowed;
+  }
+
+  // Hovered: card raises above the hand
+  &--hovered:not(.hand__slot--unaffordable) {
+    cursor: pointer;
+  }
+}
+
+// ── Ghost card (follows pointer during drag) ──────────────────────────────────
+
+.hand__ghost {
+  position: fixed;
+  // Centered on the pointer
+  transform: translate(-50%, -60%) rotate(-3deg) scale(1.12);
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.08s ease;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.7));
+
+  // When above the play threshold: glow + straighten
+  &--can-play {
+    transform: translate(-50%, -60%) rotate(0deg) scale(1.15);
+    filter:
+      drop-shadow(0 8px 20px rgba(0, 0, 0, 0.7))
+      drop-shadow(0 0 14px rgba($color-energy, 0.9));
+  }
+
+  // When hovering directly over an enemy: aura roja, escalar y enderezar
+  &--targeting-enemy {
+    transform: translate(-50%, -60%) rotate(0deg) scale(1.18);
+    filter:
+      drop-shadow(0 8px 24px rgba(0, 0, 0, 0.8))
+      drop-shadow(0 0 18px rgba($color-attack, 1))
+      drop-shadow(0 0 36px rgba($color-attack, 0.55));
+    animation: ghost-target-pulse 0.65s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes ghost-target-pulse {
+  from { filter:
+    drop-shadow(0 8px 24px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 14px rgba($color-attack, 0.85))
+    drop-shadow(0 0 28px rgba($color-attack, 0.4)); }
+  to   { filter:
+    drop-shadow(0 8px 24px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 22px rgba($color-attack, 1))
+    drop-shadow(0 0 44px rgba($color-attack, 0.7)); }
+}
+
+// ── Play-zone overlay ─────────────────────────────────────────────────────────
+
+.hand__play-zone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  // Borde inferior = línea "soltar para jugar"; alineado con PLAY_ZONE_HEIGHT_FRACTION en .ts
+  height: 56vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 16px;
+  // Transparent, non-blocking – purely visual hint
+  pointer-events: none;
+  z-index: 9000;
+  background: linear-gradient(
+    to bottom,
+    rgba($color-energy, 0.12) 0%,
+    transparent 100%
+  );
+  border-bottom: 2px dashed rgba($color-energy, 0.5);
+  animation: play-zone-pulse 1.2s ease-in-out infinite;
+}
+
+.hand__play-zone-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba($color-energy, 0.8);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes play-zone-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+// ── Inner card wrapper (carries the Angular animation trigger) ────────────
+
+.hand__card-inner {
+  // Block display so the animation transform has a clean coordinate space.
+  display: block;
+  // Ensure the wrapper doesn't clip card hover effects (scale + glow).
+  overflow: visible;
+  // Inherit the fan's bottom-center pivot point so scale-down animations
+  // shrink toward the base of the card rather than the geometric center.
+  transform-origin: bottom center;
+}
+
+// ── Empty-hand indicator ──────────────────────────────────────────────────────
+
+.hand__empty {
+  font-size: 12px;
+  color: $text-secondary;
+  font-style: italic;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+  pointer-events: none;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+// Landscape móvil: reducir altura del host para que el canvas tenga más espacio.
+// Las cartas se cortan en la parte inferior pero el juego sigue siendo funcional.
+@media (max-height: 500px) and (orientation: landscape) {
+  :host {
+    height: calc(#{$card-height} * 0.72 + 40px);
+    overflow: hidden;
+  }
+
+  .hand__fan {
+    padding-bottom: 4px;
+  }
+}
+
+// Pantallas muy pequeñas (< 360px): reducir el área del host levemente
+@media (max-width: 360px) {
+  :host {
+    height: calc(#{$card-height} + 44px);
+  }
+}

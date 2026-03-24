@@ -1,0 +1,121 @@
+<section class="shop">
+  <header class="shop__header">
+    <h2 class="shop__title">Tienda</h2>
+    <div class="shop__gold">
+      <span class="shop__gold-icon" aria-hidden="true">💰</span>
+      <span class="shop__gold-amount" aria-label="Oro disponible">{{ gold() }}</span>
+    </div>
+  </header>
+
+  @if (shop()) {
+    <!-- Sección de cartas -->
+    @if (cardItems().length > 0) {
+      <div class="shop__section">
+        <h3 class="shop__section-title">Cartas</h3>
+        <div class="shop__cards">
+          @for (item of cardItems(); track item.id) {
+            <div
+              class="shop__card-slot"
+              [class.shop__card-slot--sold]="item.sold"
+              [class.shop__card-slot--unaffordable]="!item.sold && !canAfford(item.price)"
+            >
+              @if (item.card) {
+                <app-card
+                  [card]="item.card"
+                  [playable]="!item.sold && canAfford(item.price)"
+                  (cardClick)="buyCard(item)"
+                />
+              }
+              <div
+                class="shop__price"
+                [class.shop__price--unaffordable]="!item.sold && !canAfford(item.price)"
+              >
+                @if (item.sold) {
+                  <span class="shop__price-sold">Vendida</span>
+                } @else {
+                  <span class="shop__price-coin" aria-hidden="true">💰</span>
+                  <span>{{ item.price }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Sección de reliquias -->
+    @if (relicItems().length > 0) {
+      <div class="shop__section">
+        <h3 class="shop__section-title">Reliquias</h3>
+        <div class="shop__relics">
+          @for (item of relicItems(); track item.id) {
+            <button
+              class="shop__relic"
+              [class.shop__relic--sold]="item.sold"
+              [class.shop__relic--unaffordable]="!item.sold && !canAfford(item.price)"
+              [disabled]="item.sold || !canAfford(item.price)"
+              (click)="buyRelic(item)"
+            >
+              <span class="shop__relic-icon" aria-hidden="true">🔮</span>
+              <span class="shop__relic-name">{{ formatRelicName(item.relicId ?? '') }}</span>
+              @if (item.sold) {
+                <span class="shop__relic-badge shop__relic-badge--sold">Vendida</span>
+              } @else {
+                <span
+                  class="shop__relic-badge shop__relic-badge--price"
+                  [class.shop__relic-badge--unaffordable]="!canAfford(item.price)"
+                >
+                  💰 {{ item.price }}
+                </span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Sección de eliminación de carta -->
+    <div class="shop__section shop__section--purge">
+      <h3 class="shop__section-title">Eliminar carta</h3>
+
+      @if (!purgeMode()) {
+        <button
+          class="shop__purge-btn"
+          [class.shop__purge-btn--unaffordable]="!canAfford(purgePrice())"
+          [disabled]="!canAfford(purgePrice())"
+          (click)="togglePurgeMode()"
+        >
+          <span>Eliminar una carta del mazo</span>
+          <span
+            class="shop__purge-price"
+            [class.shop__purge-price--unaffordable]="!canAfford(purgePrice())"
+          >
+            💰 {{ purgePrice() }}
+          </span>
+        </button>
+      } @else {
+        <p class="shop__purge-hint">Elige una carta de tu mazo para eliminarla permanentemente:</p>
+        <button class="shop__purge-cancel" (click)="togglePurgeMode()">Cancelar</button>
+        <div class="shop__purge-deck">
+          @for (item of deckWithIndex(); track item.idx) {
+            <app-card
+              [card]="item.card"
+              [playable]="true"
+              (cardClick)="purgeCard(item.idx)"
+            />
+          }
+          @if (deckWithIndex().length === 0) {
+            <p class="shop__purge-empty">El mazo está vacío.</p>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Pie: salir de la tienda -->
+    <footer class="shop__footer">
+      <button class="shop__leave-btn" (click)="leave()">Continuar</button>
+    </footer>
+  } @else {
+    <p class="shop__empty">La tienda no está disponible.</p>
+  }
+</section>

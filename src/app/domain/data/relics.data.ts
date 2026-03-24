@@ -1,0 +1,35 @@
+/**
+ * Pool de IDs de reliquias disponibles en el juego.
+ * Usado por ShopManager para generar las ofertas de tienda.
+ */
+export const ALL_RELIC_IDS: readonly string[] = [
+  'burning-blood',
+  'cracked-core',
+  'pure-water',
+  'vajra',
+  'akabeko',
+  'anchor',
+  'ancient-tea-set',
+  'art-of-war',
+  'bag-of-marbles',
+  'bag-of-preparation',
+  'blood-vial',
+  'bronze-scales',
+  'centennial-puzzle',
+  'ceramic-fish',
+  'dream-catcher',
+  'happy-flower',
+  'juzu-bracelet',
+  'lantern',
+  'meat-on-the-bone',
+  'oddly-smooth-stone',
+  'omamori',
+  'orichalcum',
+  'pen-nib',
+  'preserved-insect',
+  'regal-pillow',
+  'smiling-mask',
+  'the-boot',
+  'toy-ornithopter',
+  'whetstone',
+] as const;

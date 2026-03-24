@@ -1,0 +1,71 @@
+<!-- Hand container -->
+<div class="hand" [class.hand--disabled]="!isPlayerTurn()">
+
+  <!-- Play-zone indicator: visible while dragging above the threshold (but not on an enemy) -->
+  @if (isDragActive() && isAboveThreshold() && hoveredDropZoneIdx() === null) {
+    <div class="hand__play-zone" aria-hidden="true">
+      <span class="hand__play-zone-label">Soltar para jugar</span>
+    </div>
+  }
+
+  <!-- Fan of cards -->
+  <div class="hand__fan" aria-label="Cartas en mano">
+    @for (card of hand(); track $index; let i = $index) {
+      <div
+        class="hand__slot"
+        [class.hand__slot--hovered]="hoveredIndex() === i"
+        [class.hand__slot--dragging]="isBeingDragged(i)"
+        [class.hand__slot--unaffordable]="isPlayerTurn() && card.cost > energy()"
+        [style.transform]="getTransform(i)"
+        [style.z-index]="getZIndex(i)"
+        (mouseenter)="onMouseEnter(i)"
+        (mouseleave)="onMouseLeave()"
+        (pointerdown)="onPointerDown($event, card, i)"
+      >
+        <!--
+          Inner wrapper carries the Angular animation trigger.
+          Outer slot only handles fan-positioning (transform + z-index)
+          so animation transforms compose cleanly without conflicts.
+        -->
+        <div
+          class="hand__card-inner"
+          [@cardWrap]="{
+            value: getCardWrapState(card),
+            params: {
+              drawDelay: getDrawDelay(i),
+              discardDelay: getDiscardDelay(i)
+            }
+          }"
+        >
+          <app-card
+            [card]="card"
+            [playable]="isPlayable(card)"
+          />
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Ghost card that follows the pointer while dragging -->
+  @if (isDragActive() && dragPos() !== null && draggingIndex() !== -1) {
+    <div
+      class="hand__ghost"
+      [class.hand__ghost--can-play]="isAboveThreshold() && hoveredDropZoneIdx() === null"
+      [class.hand__ghost--targeting-enemy]="hoveredDropZoneIdx() !== null"
+      [style.left.px]="dragPos()!.x"
+      [style.top.px]="dragPos()!.y"
+      aria-hidden="true"
+    >
+      <app-card
+        [card]="hand()[draggingIndex()]"
+        [playable]="true"
+      />
+    </div>
+  }
+
+  <!-- Empty hand message -->
+  @if (hand().length === 0) {
+    <p class="hand__empty" aria-live="polite">Mano vacía</p>
+  }
+
+</div>

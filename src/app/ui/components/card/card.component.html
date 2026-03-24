@@ -1,0 +1,45 @@
+<article
+  class="card"
+  [class]="'card--' + card().type"
+  [class.card--rare]="card().rarity === 'rare'"
+  [class.card--uncommon]="card().rarity === 'uncommon'"
+  [class.card--common]="card().rarity === 'common'"
+  [class.card--basic]="card().rarity === 'basic'"
+  [class.card--playable]="playable()"
+  [class.card--upgraded]="card().upgraded"
+  (click)="onCardClick()"
+  role="button"
+  [attr.aria-label]="card().name + ', coste ' + card().cost"
+  [attr.tabindex]="playable() ? 0 : -1"
+>
+  <!-- Orbe de coste de energía -->
+  <div class="card__cost" aria-label="Coste de energía">
+    {{ card().cost }}
+  </div>
+
+  <!-- Área de arte: símbolo del tipo -->
+  <div class="card__art" aria-hidden="true">
+    <span class="card__art-symbol">{{ typeSymbol() }}</span>
+  </div>
+
+  <!-- Nombre de la carta -->
+  <div class="card__name">
+    {{ card().name }}
+    @if (card().upgraded) {
+      <span class="card__upgraded-mark" aria-label="Mejorada">+</span>
+    }
+  </div>
+
+  <!-- Separador decorativo -->
+  <div class="card__divider"></div>
+
+  <!-- Descripción / texto de efecto -->
+  <div class="card__description">
+    {{ card().description }}
+  </div>
+
+  <!-- Pie: etiqueta de tipo -->
+  <div class="card__type-label">
+    {{ typeLabel() }}
+  </div>
+</article>

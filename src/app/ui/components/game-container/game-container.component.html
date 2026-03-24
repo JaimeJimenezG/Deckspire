@@ -1,0 +1,65 @@
+<!-- Barra de estado superior (visible en todas las fases excepto menú principal) -->
+@if (showStatusBar()) {
+  <app-player-status-bar />
+}
+
+<!-- Área de vistas: ocupa el espacio restante bajo la barra de estado -->
+<div class="view-area">
+  @switch (phase()) {
+    @case ('main-menu') {
+      <div class="phase-panel" [@phaseTransition]="'main-menu'">
+        <app-main-menu />
+      </div>
+    }
+    @case ('map') {
+      <div class="phase-panel" [@phaseTransition]="'map'">
+        <app-map-view />
+      </div>
+    }
+    @case ('combat') {
+      <div class="phase-panel" [@phaseTransition]="'combat'">
+        <app-combat-view />
+      </div>
+    }
+    @case ('shop') {
+      <div class="phase-panel" [@phaseTransition]="'shop'">
+        <app-shop />
+      </div>
+    }
+    @case ('rest') {
+      <div class="phase-panel" [@phaseTransition]="'rest'">
+        <app-rest-site />
+      </div>
+    }
+    @case ('reward') {
+      <div class="phase-panel" [@phaseTransition]="'reward'">
+        <app-reward />
+      </div>
+    }
+    @case ('event') {
+      <div class="phase-panel" [@phaseTransition]="'event'">
+        <app-event-view />
+      </div>
+    }
+    @case ('game-over') {
+      <div class="phase-panel" [@phaseTransition]="'game-over'">
+        <app-game-over />
+      </div>
+    }
+  }
+</div>
+
+<!-- Botón flotante para abrir el visor del mazo (disponible durante la run) -->
+@if (showDeckButton()) {
+  <button
+    class="deck-fab"
+    (click)="openDeckViewer()"
+    aria-label="Ver mazo"
+    title="Ver mazo"
+  >
+    🃏 Mazo
+  </button>
+}
+
+<!-- Overlay del visor del mazo (siempre montado, visible solo cuando open) -->
+<app-deck-viewer />

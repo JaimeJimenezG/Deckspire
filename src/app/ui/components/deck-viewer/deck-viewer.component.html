@@ -1,0 +1,65 @@
+@if (visible()) {
+  <div
+    class="deck-viewer__backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Visor del mazo"
+    (click)="onBackdropClick($event)"
+    (keydown.escape)="close()"
+    tabindex="-1"
+  >
+    <div class="deck-viewer__panel">
+
+      <!-- ── Cabecera ───────────────────────────────────────────────── -->
+      <header class="deck-viewer__header">
+        <h2 class="deck-viewer__title">
+          Mazo
+          <span class="deck-viewer__count">{{ cardCount() }}</span>
+        </h2>
+        <button
+          class="deck-viewer__close"
+          (click)="close()"
+          aria-label="Cerrar visor del mazo"
+        >
+          ✕
+        </button>
+      </header>
+
+      <!-- ── Filtros por tipo ──────────────────────────────────────── -->
+      <nav class="deck-viewer__filters" aria-label="Filtrar cartas por tipo">
+        @for (f of filters; track f) {
+          <button
+            class="deck-viewer__filter-btn"
+            [class.deck-viewer__filter-btn--active]="activeFilter() === f"
+            [class.deck-viewer__filter-btn--attack]="f === 'attack'"
+            [class.deck-viewer__filter-btn--skill]="f === 'skill'"
+            [class.deck-viewer__filter-btn--power]="f === 'power'"
+            (click)="setFilter(f)"
+            [attr.aria-pressed]="activeFilter() === f"
+          >
+            {{ filterLabel(f) }}
+            <span class="deck-viewer__filter-count">{{ filterCount(f) }}</span>
+          </button>
+        }
+      </nav>
+
+      <!-- ── Cuadrícula de cartas ──────────────────────────────────── -->
+      <div
+        class="deck-viewer__grid"
+        role="list"
+        [attr.aria-label]="'Mostrando ' + filteredCount() + ' cartas'"
+      >
+        @if (filteredCards().length === 0) {
+          <p class="deck-viewer__empty">Sin cartas en esta categoría.</p>
+        } @else {
+          @for (card of filteredCards(); track card.id + '_' + $index) {
+            <div class="deck-viewer__card-wrapper" role="listitem">
+              <app-card [card]="card" [playable]="false" />
+            </div>
+          }
+        }
+      </div>
+
+    </div>
+  </div>
+}

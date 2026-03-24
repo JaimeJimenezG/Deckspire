@@ -1,0 +1,42 @@
+@if (activeEvent(); as ev) {
+  <section class="event">
+
+    <!-- Cabecera -->
+    <header class="event__header">
+      <div class="event__icon" aria-hidden="true">{{ ev.icon }}</div>
+      <h2 class="event__title">{{ ev.title }}</h2>
+    </header>
+
+    <!-- Descripción narrativa -->
+    <p class="event__description">{{ ev.description }}</p>
+
+    @if (!isDone()) {
+      <!-- Opciones de elección -->
+      <div class="event__choices" role="list">
+        @for (choice of ev.choices; track choice.id) {
+          <button
+            class="event__choice"
+            role="listitem"
+            (click)="choose(choice)"
+          >
+            @if (choice.category) {
+              <span class="event__choice-badge event__choice-badge--{{ choice.category }}">
+                {{ categoryLabel(choice.category) }}
+              </span>
+            }
+            <span class="event__choice-text">{{ choice.text }}</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <!-- Resultado de la elección -->
+      <div class="event__outcome">
+        <p class="event__outcome-text">{{ chosenChoice()?.outcomeText }}</p>
+        <button class="event__btn event__btn--primary" (click)="leaveEvent()">
+          Continuar
+        </button>
+      </div>
+    }
+
+  </section>
+}

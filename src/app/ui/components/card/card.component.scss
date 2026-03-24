@@ -1,0 +1,184 @@
+@use 'variables' as *;
+
+// === Dimensiones locales (específicas del componente, no son colores) ===
+$card-width:  120px;
+$card-height: 180px;
+$card-radius:   8px;
+$art-height:   64px;
+
+// === Base ===
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: $card-width;
+  height: $card-height;
+  border-radius: $card-radius;
+  border: 2px solid $rarity-common;
+  background: linear-gradient(160deg, var(--bg-medium), var(--bg-darkest));
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: default;
+  user-select: none;
+  transition: all 0.2s ease;
+
+  // Hover: ampliar
+  &:hover {
+    transform: scale(1.25) translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+    z-index: 10;
+  }
+
+  // Carta jugable: pointer y glow con color de tipo al hover
+  &--playable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.7),
+        0 0 12px var(--card-type-color);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--card-type-color);
+      outline-offset: 3px;
+    }
+  }
+
+  // === Rareza → color de borde (usa mixin rarity-border de _variables.scss) ===
+  &--starter  { @include rarity-border('starter'); }
+  &--common   { @include rarity-border('common'); }
+  &--uncommon { @include rarity-border('uncommon'); }
+  &--rare     { @include rarity-border('rare'); }
+
+  // === Tipo → acento vía CSS var local + fondo de arte ===
+  &--attack {
+    --card-type-color: #{$color-attack};
+    --card-art-bg: linear-gradient(135deg, #3a1010, #5a1a0a);
+  }
+
+  &--skill {
+    --card-type-color: #{$color-skill};
+    --card-art-bg: linear-gradient(135deg, #0e1040, #1a1870);
+  }
+
+  &--power {
+    --card-type-color: #{$color-power};
+    --card-art-bg: linear-gradient(135deg, #0a2e1a, #0e4224);
+  }
+
+  // Carta mejorada: anillo dorado exterior
+  &--upgraded::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: calc($card-radius + 2px);
+    border: 1px solid rgba($rarity-rare, 0.5);
+    pointer-events: none;
+  }
+}
+
+// === Orbe de coste ===
+.card__cost {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, $color-energy, #9a7000);
+  border: 2px solid $color-energy;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1200;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+// === Área de arte ===
+.card__art {
+  width: 100%;
+  height: $art-height;
+  background: var(--card-art-bg, linear-gradient(135deg, var(--bg-medium), var(--bg-light)));
+  border-radius: $card-radius $card-radius 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--card-type-color, #{$text-secondary});
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.card__art-symbol {
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+// === Nombre ===
+.card__name {
+  width: 100%;
+  padding: 5px 8px 3px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  color: $text-gold;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.card__upgraded-mark {
+  color: $rarity-rare;
+  font-size: 13px;
+}
+
+// === Separador decorativo ===
+.card__divider {
+  width: calc(100% - 16px);
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--card-type-color, #{$text-secondary}),
+    transparent
+  );
+  margin: 1px 0;
+  flex-shrink: 0;
+}
+
+// === Descripción ===
+.card__description {
+  flex: 1;
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: $text-secondary;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+// === Etiqueta de tipo en el pie ===
+.card__type-label {
+  width: 100%;
+  padding: 3px 6px 5px;
+  font-size: 8.5px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--card-type-color, #{$text-secondary});
+  flex-shrink: 0;
+}

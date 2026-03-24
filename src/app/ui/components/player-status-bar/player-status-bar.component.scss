@@ -1,0 +1,256 @@
+@use 'variables' as *;
+
+// ─── Contenedor principal ────────────────────────────────────────────────────
+
+:host {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 16px;
+  background: rgba(10, 10, 26, 0.92);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  overflow: hidden;
+}
+
+// ─── Secciones ───────────────────────────────────────────────────────────────
+
+.status-bar__section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+
+  &--left {
+    flex: 0 0 auto;
+  }
+
+  &--center {
+    flex: 1 1 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: hidden;
+    gap: 4px;
+  }
+
+  &--right {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+// ─── HP ─────────────────────────────────────────────────────────────────────
+
+.hp-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hp-icon {
+  font-size: 14px;
+  color: $color-health;
+  flex-shrink: 0;
+  line-height: 1;
+  filter: drop-shadow(0 0 4px rgba(192, 57, 43, 0.6));
+}
+
+.hp-bar-wrap {
+  position: relative;
+  width: 100px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  @media (max-width: 480px) {
+    width: 70px;
+  }
+}
+
+.hp-bar__fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+
+  &.hp-high   { background: $color-health; }
+  &.hp-medium { background: #e67e22; }
+  &.hp-low    { background: #e74c3c; box-shadow: 0 0 6px rgba(231, 76, 60, 0.7); }
+}
+
+.hp-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: $text-primary;
+  white-space: nowrap;
+  min-width: 40px;
+
+  &__max {
+    color: $text-secondary;
+    font-weight: 400;
+  }
+}
+
+// ─── Chips de estadística (Bloqueo, Energía, Oro) ────────────────────────────
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &__icon {
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  &__value {
+    color: $text-primary;
+  }
+
+  &__max {
+    color: $text-secondary;
+    font-weight: 400;
+  }
+
+  &--block {
+    background: rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.4);
+    color: $color-block;
+  }
+
+  &--energy {
+    background: rgba(240, 192, 64, 0.12);
+    border-color: rgba(240, 192, 64, 0.35);
+    color: $color-energy;
+  }
+
+  &--gold {
+    background: rgba(212, 165, 116, 0.1);
+    border-color: rgba(212, 165, 116, 0.3);
+    color: $text-gold;
+  }
+}
+
+// ─── Planta / Acto ───────────────────────────────────────────────────────────
+
+.floor-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+
+  &__floor {
+    color: $text-primary;
+    font-weight: 600;
+  }
+
+  &__sep {
+    color: $text-secondary;
+  }
+
+  &__act {
+    color: $text-secondary;
+  }
+}
+
+// ─── Reliquias ───────────────────────────────────────────────────────────────
+
+.relics-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  max-width: 160px;
+}
+
+.relic-chip {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(46, 184, 114, 0.12);
+  border: 1px solid rgba(46, 184, 114, 0.3);
+  color: #2eb872;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+// ─── Badges de efectos de estado ─────────────────────────────────────────────
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &__name {
+    opacity: 0.9;
+  }
+
+  &__stacks {
+    font-weight: 700;
+  }
+
+  &--buff {
+    background: rgba(46, 184, 114, 0.15);
+    border: 1px solid rgba(46, 184, 114, 0.35);
+    color: #2eb872;
+  }
+
+  &--debuff {
+    background: rgba(200, 75, 49, 0.15);
+    border: 1px solid rgba(200, 75, 49, 0.35);
+    color: #e05540;
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .status-bar {
+    height: 44px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .floor-info,
+  .relics-list {
+    display: none;
+  }
+
+  .hp-bar-wrap {
+    width: 70px;
+  }
+
+  .stat-chip {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+}
