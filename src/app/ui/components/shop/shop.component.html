@@ -53,11 +53,16 @@
               class="shop__relic"
               [class.shop__relic--sold]="item.sold"
               [class.shop__relic--unaffordable]="!item.sold && !canAfford(item.price)"
-              [disabled]="item.sold || !canAfford(item.price)"
+              [attr.aria-disabled]="item.sold || !canAfford(item.price)"
               (click)="buyRelic(item)"
             >
               <span class="shop__relic-icon" aria-hidden="true">🔮</span>
-              <span class="shop__relic-name">{{ formatRelicName(item.relicId ?? '') }}</span>
+              <span
+                class="shop__relic-name-wrap"
+                [attr.data-tooltip]="relicTooltip(item.relicId ?? '')"
+              >
+                <span class="shop__relic-name">{{ formatRelicName(item.relicId ?? '') }}</span>
+              </span>
               @if (item.sold) {
                 <span class="shop__relic-badge shop__relic-badge--sold">Vendida</span>
               } @else {
@@ -118,4 +123,5 @@
   } @else {
     <p class="shop__empty">La tienda no está disponible.</p>
   }
+
 </section>

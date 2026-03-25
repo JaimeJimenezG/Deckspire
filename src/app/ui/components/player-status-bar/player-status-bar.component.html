@@ -72,8 +72,10 @@
 
     @if (relics().length > 0) {
       <div class="relics-list" title="Reliquias">
-        @for (relic of relics(); track relic) {
-          <span class="relic-chip">{{ relic }}</span>
+        @for (relic of relicChips(); track relic.id) {
+          <span class="relic-chip-wrap" [attr.data-tooltip]="relic.tooltip">
+            <span class="relic-chip">{{ relic.name }}</span>
+          </span>
         }
       </div>
     }

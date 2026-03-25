@@ -2,7 +2,7 @@
 
 // ─── Contenedor principal ────────────────────────────────────────────────────
 
-:host {
+::host {
   display: block;
   width: 100%;
   flex-shrink: 0;
@@ -19,7 +19,7 @@
   backdrop-filter: blur(4px);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
   z-index: 200;
-  overflow: hidden;
+  overflow: visible; // permite que el popup de reliquias no se recorte
 }
 
 // ─── Secciones ───────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@
   }
 }
 
-// ─── Planta / Acto ───────────────────────────────────────────────────────────
+// ─── Planta / Acto ────────────────────────────────────────────────────────────
 
 .floor-info {
   display: flex;
@@ -180,6 +180,40 @@
   flex-wrap: nowrap;
   overflow: hidden;
   max-width: 160px;
+}
+
+.relic-chip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.relic-chip-wrap::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 1.25;
+  white-space: pre-line;
+  width: max-content;
+  max-width: 320px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: auto;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
+}
+
+.relic-chip-wrap:hover::after {
+  opacity: 1;
+  visibility: visible;
 }
 
 .relic-chip {
