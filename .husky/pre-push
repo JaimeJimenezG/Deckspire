@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -e
+. "$(dirname "$0")/chrome-bin.sh"
+
+npm run build
+npm run test:ci
