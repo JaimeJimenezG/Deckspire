@@ -39,7 +39,7 @@ Adaptador de persistencia que usa IndexedDB a través de la librería `idb` (acc
 **Puerto**: `CombatRendererPort`
 **Ubicación**: `infrastructure/canvas/canvas-combat-renderer.ts`
 
-Adaptador de renderizado que usa Canvas 2D para dibujar la escena de combate con sprites geométricos (no usa assets de imagen externos).
+Adaptador de renderizado que usa Canvas 2D para dibujar la escena de combate. El dibujo por defecto sigue siendo geométrico (`sprite-helpers.ts`); los **sprites en imagen** viven en `public/sprites/` (ver convención spritesheet + `.manifest.json` en la regla `infrastructure-adapters.mdc` y el modelo `SpriteAtlasManifest`).
 
 ### Ciclo de vida
 
@@ -62,6 +62,7 @@ Adaptador de renderizado que usa Canvas 2D para dibujar la escena de combate con
 
 - **ParticleSystem** (`particles.ts`): sistema de partículas para chispas, números flotantes, ondas de choque y explosiones de muerte.
 - **Sprite helpers** (`sprite-helpers.ts`): funciones para dibujar cuerpos de jugador/enemigo, barras de HP, badges de bloqueo, orbes de energía, iconos de intent y efectos de estado.
+- **Atlas de combate** (`sprite-atlas-paths.ts`): URLs bajo `/sprites/...`; manifiestos validables con `isSpriteAtlasManifest` en dominio.
 - **Screen shake**: oscilación sinusoidal con decaimiento exponencial + ruido aleatorio.
 - **Damage flash**: gradiente radial blanco con fade-out cuadrático.
 - **Shockwave**: anillo expansivo con fade-out.
