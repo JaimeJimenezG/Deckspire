@@ -159,7 +159,7 @@ export class RelicEngine {
     count: number,
     rng: SeededRandom,
   ): { readonly relics: readonly string[]; readonly granted: readonly string[] } {
-    const resultRelics = [...ownedRelvicIds];
+    const resultRelics = [...ownedRelicIds];
     const available = this.allRelicIds.filter(id => !resultRelics.includes(id));
 
     const safeCount = Math.max(0, Math.min(count, available.length));
