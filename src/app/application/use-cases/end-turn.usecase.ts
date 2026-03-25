@@ -3,7 +3,9 @@ import type { EndTurnUseCase } from '../../domain/ports/inbound/end-turn.usecase
 import type { CombatRendererPort } from '../../domain/ports/outbound/combat-renderer.port';
 import { ENEMIES_BY_ID } from '../../domain/data/enemies.data';
 import { CombatEngine } from '../../domain/services/combat-engine';
+import { DeckManager } from '../../domain/services/deck-manager';
 import { CombatContext, EnemyAI } from '../../domain/services/enemy-ai';
+import { RelicEngine } from '../../domain/services/relic-engine';
 import { SeededRandom } from '../../domain/services/seeded-random';
 
 /**
@@ -47,6 +49,7 @@ export class EndTurnUseCaseImpl implements EndTurnUseCase {
     private readonly combatEngine: CombatEngine,
     private readonly enemyAI: EnemyAI,
     private readonly renderer: CombatRendererPort,
+    private readonly relicEngine = new RelicEngine(new DeckManager()),
   ) {}
 
   async execute(state: GameState): Promise<GameState> {
@@ -68,6 +71,7 @@ export class EndTurnUseCaseImpl implements EndTurnUseCase {
     // status effects (burn, poison, metallicize, etc.) and resets enemy block.
     const hpBeforeTransition = combat.enemies.map(e => e.hp);
     let currentCombat = this.combatEngine.processEnemyTurn(combat);
+    currentCombat = this.relicEngine.applyPlayerTurnEndHooks(currentCombat, state.relics);
 
     // ── Step 2: animate deaths caused by status effects during transition ───
     for (let i = 0; i < currentCombat.enemies.length; i++) {
@@ -129,7 +133,15 @@ export class EndTurnUseCaseImpl implements EndTurnUseCase {
     // Can happen if thorns or combust killed the last enemy during their own turn.
     const phaseAfterEnemies = this.combatEngine.checkWinLoseConditions(currentCombat);
     if (phaseAfterEnemies !== 'enemy-turn') {
-      return { ...state, combat: { ...currentCombat, phase: phaseAfterEnemies } };
+      const playerAfterVictoryHooks =
+        phaseAfterEnemies === 'combat-end-victory'
+          ? this.relicEngine.applyCombatEndVictoryHooks(currentCombat.player, state.relics)
+          : currentCombat.player;
+      return {
+        ...state,
+        player: { ...state.player, hp: playerAfterVictoryHooks.hp },
+        combat: { ...currentCombat, player: playerAfterVictoryHooks, phase: phaseAfterEnemies },
+      };
     }
 
     // ── Step 5: assign next intents for all alive enemies ────────────────────

@@ -6,7 +6,9 @@ import type { StartCombatUseCase } from '../../domain/ports/inbound/start-combat
 import { ENEMIES_BY_ID } from '../../domain/data/enemies.data';
 import { ENCOUNTER_POOLS_BY_KEY } from '../../domain/data/encounters.data';
 import { CombatEngine } from '../../domain/services/combat-engine';
+import { DeckManager } from '../../domain/services/deck-manager';
 import { CombatContext, EnemyAI } from '../../domain/services/enemy-ai';
+import { RelicEngine } from '../../domain/services/relic-engine';
 import { SeededRandom } from '../../domain/services/seeded-random';
 
 // ---------------------------------------------------------------------------
@@ -64,6 +66,7 @@ export class StartCombatUseCaseImpl implements StartCombatUseCase {
   constructor(
     private readonly combatEngine: CombatEngine,
     private readonly enemyAI: EnemyAI,
+    private readonly relicEngine = new RelicEngine(new DeckManager()),
   ) {}
 
   async execute(state: GameState): Promise<GameState> {
@@ -117,7 +120,8 @@ export class StartCombatUseCaseImpl implements StartCombatUseCase {
     // 5. Inicializar CombatState: baraja el mazo del jugador y roba la mano inicial.
     // state.player.deck está vacío fuera de combate; el mazo maestro vive en state.deck.
     const playerForCombat = { ...state.player, deck: state.deck };
-    const combat = this.combatEngine.initCombat(playerForCombat, enemies, rng);
+    const baseCombat = this.combatEngine.initCombat(playerForCombat, enemies, rng);
+    const combat = this.relicEngine.applyCombatStartHooks(baseCombat, state.relics, rng);
 
     // 6. Devolver GameState actualizado
     return { ...state, phase: 'combat', combat };

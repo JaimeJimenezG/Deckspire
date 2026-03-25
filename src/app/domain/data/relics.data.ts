@@ -1,35 +1,86 @@
+import type { RelicDefinition } from '../models/relic.model';
+
+/**
+ * Catálogo tipado de reliquias.
+ * En esta primera integración se prioriza tener definición estructural y hooks
+ * básicos para las reliquias más inmediatas del combate.
+ */
+export const RELIC_DEFINITIONS: Readonly<Record<string, RelicDefinition>> = {
+  'burning-blood': {
+    id: 'burning-blood',
+    name: 'Burning Blood',
+    description: 'Al ganar un combate, cura 6 HP.',
+    rarity: 'starter',
+    passiveHooks: [{ hook: 'combat-end-victory', effect: { type: 'heal', value: 6 } }],
+  },
+  'cracked-core': {
+    id: 'cracked-core',
+    name: 'Cracked Core',
+    description: 'Reliquia inicial base.',
+    rarity: 'starter',
+    passiveHooks: [],
+  },
+  'pure-water': {
+    id: 'pure-water',
+    name: 'Pure Water',
+    description: 'Reliquia inicial base.',
+    rarity: 'starter',
+    passiveHooks: [],
+  },
+  vajra: { id: 'vajra', name: 'Vajra', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  akabeko: { id: 'akabeko', name: 'Akabeko', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  anchor: {
+    id: 'anchor',
+    name: 'Anchor',
+    description: 'Al inicio del combate, gana 10 de bloque.',
+    rarity: 'common',
+    passiveHooks: [{ hook: 'combat-start', effect: { type: 'gain-block', value: 10 } }],
+  },
+  'ancient-tea-set': { id: 'ancient-tea-set', name: 'Ancient Tea Set', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'art-of-war': { id: 'art-of-war', name: 'Art of War', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'bag-of-marbles': { id: 'bag-of-marbles', name: 'Bag of Marbles', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'bag-of-preparation': {
+    id: 'bag-of-preparation',
+    name: 'Bag of Preparation',
+    description: 'Al inicio del combate, roba 2 cartas.',
+    rarity: 'common',
+    passiveHooks: [{ hook: 'combat-start', effect: { type: 'draw-cards', value: 2 } }],
+  },
+  'blood-vial': { id: 'blood-vial', name: 'Blood Vial', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'bronze-scales': { id: 'bronze-scales', name: 'Bronze Scales', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'centennial-puzzle': { id: 'centennial-puzzle', name: 'Centennial Puzzle', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'ceramic-fish': { id: 'ceramic-fish', name: 'Ceramic Fish', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'dream-catcher': { id: 'dream-catcher', name: 'Dream Catcher', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'happy-flower': { id: 'happy-flower', name: 'Happy Flower', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'juzu-bracelet': { id: 'juzu-bracelet', name: 'Juzu Bracelet', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  lantern: {
+    id: 'lantern',
+    name: 'Lantern',
+    description: 'Al inicio del combate, gana 1 de energía.',
+    rarity: 'common',
+    passiveHooks: [{ hook: 'combat-start', effect: { type: 'gain-energy', value: 1 } }],
+  },
+  'meat-on-the-bone': { id: 'meat-on-the-bone', name: 'Meat on the Bone', description: 'Bonus pasivo.', rarity: 'uncommon', passiveHooks: [] },
+  'oddly-smooth-stone': { id: 'oddly-smooth-stone', name: 'Oddly Smooth Stone', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  omamori: { id: 'omamori', name: 'Omamori', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  orichalcum: {
+    id: 'orichalcum',
+    name: 'Orichalcum',
+    description: 'Si terminas turno sin bloque, ganas 6 de bloque.',
+    rarity: 'common',
+    passiveHooks: [{ hook: 'player-turn-end', effect: { type: 'gain-block', value: 6 } }],
+  },
+  'pen-nib': { id: 'pen-nib', name: 'Pen Nib', description: 'Bonus pasivo.', rarity: 'uncommon', passiveHooks: [] },
+  'preserved-insect': { id: 'preserved-insect', name: 'Preserved Insect', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'regal-pillow': { id: 'regal-pillow', name: 'Regal Pillow', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'smiling-mask': { id: 'smiling-mask', name: 'Smiling Mask', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'the-boot': { id: 'the-boot', name: 'The Boot', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  'toy-ornithopter': { id: 'toy-ornithopter', name: 'Toy Ornithopter', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+  whetstone: { id: 'whetstone', name: 'Whetstone', description: 'Bonus pasivo.', rarity: 'common', passiveHooks: [] },
+} as const;
+
 /**
  * Pool de IDs de reliquias disponibles en el juego.
- * Usado por ShopManager para generar las ofertas de tienda.
+ * Se deriva del catálogo tipado para mantener consistencia.
  */
-export const ALL_RELIC_IDS: readonly string[] = [
-  'burning-blood',
-  'cracked-core',
-  'pure-water',
-  'vajra',
-  'akabeko',
-  'anchor',
-  'ancient-tea-set',
-  'art-of-war',
-  'bag-of-marbles',
-  'bag-of-preparation',
-  'blood-vial',
-  'bronze-scales',
-  'centennial-puzzle',
-  'ceramic-fish',
-  'dream-catcher',
-  'happy-flower',
-  'juzu-bracelet',
-  'lantern',
-  'meat-on-the-bone',
-  'oddly-smooth-stone',
-  'omamori',
-  'orichalcum',
-  'pen-nib',
-  'preserved-insect',
-  'regal-pillow',
-  'smiling-mask',
-  'the-boot',
-  'toy-ornithopter',
-  'whetstone',
-] as const;
+export const ALL_RELIC_IDS: readonly string[] = Object.keys(RELIC_DEFINITIONS);

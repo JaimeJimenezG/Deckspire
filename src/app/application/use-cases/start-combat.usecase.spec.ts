@@ -306,4 +306,16 @@ describe('StartCombatUseCaseImpl', () => {
     const result = await useCase.execute(state);
     expect(result.map).toBe(state.map);
   });
+
+  it('should apply lantern at combat start (+1 energy)', async () => {
+    const state = makeGameState({ relics: ['lantern'] });
+    const result = await useCase.execute(state);
+    expect(result.combat!.player.energy).toBe(4);
+  });
+
+  it('should apply anchor at combat start (+10 block)', async () => {
+    const state = makeGameState({ relics: ['anchor'] });
+    const result = await useCase.execute(state);
+    expect(result.combat!.player.block).toBe(10);
+  });
 });
