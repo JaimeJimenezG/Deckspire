@@ -172,20 +172,32 @@ describe('PlayCardUseCaseImpl', () => {
     expect(mockRenderer.animateCardPlay).toHaveBeenCalledWith(strikeCard);
   });
 
-  it('should invoke onCombatCommitted before animateCardPlay resolves', async () => {
-    let committed = false;
-    mockRenderer.animateCardPlay.and.callFake(() => {
-      return new Promise<void>(resolve => {
-        expect(committed).toBe(true);
-        resolve();
-      });
+  it('should invoke onCombatCommitted after damage feedback and after death animations start', async () => {
+    const order: string[] = [];
+    mockRenderer.animateCardPlay.and.callFake(async () => {
+      order.push('card');
     });
-    const state = makeGameState();
+    mockRenderer.animateDamage.and.callFake(async () => {
+      order.push('damage');
+    });
+    mockRenderer.animateDeath.and.callFake(async () => {
+      order.push('death');
+    });
+    const dyingEnemy = makeEnemy({ hp: 1, maxHp: 10 });
+    const combat = makeActiveCombat({
+      player: makePlayer({ hand: [strikeCard], energy: 3 }),
+      enemies: [dyingEnemy],
+    });
+    const state = makeGameState(combat);
     await useCase.execute(strikeCard, 0, state, {
       onCombatCommitted: () => {
-        committed = true;
+        order.push('commit');
       },
     });
+    expect(order[0]).toBe('card');
+    expect(order[1]).toBe('damage');
+    expect(order[2]).toBe('death');
+    expect(order[3]).toBe('commit');
   });
 
   it('should return a new GameState with updated combat', async () => {

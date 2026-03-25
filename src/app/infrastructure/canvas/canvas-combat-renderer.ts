@@ -341,7 +341,12 @@ export class CanvasCombatRenderer implements CombatRendererPort {
       const tier = this.resolveEnemyTier(enemy.definitionId);
       const color = getEnemyColor(enemy.definitionId, tier);
       const deathAnim = this.deathAnimations.find(d => d.targetIdx === idx + 1);
-      const alpha = deathAnim ? Math.max(0, 1 - deathAnim.progress * 1.6) : 1;
+      // Sin animación activa, los muertos (hp≤0) deben permanecer invisibles.
+      const alpha = deathAnim
+        ? Math.max(0, 1 - deathAnim.progress * 1.6)
+        : enemy.hp <= 0
+          ? 0
+          : 1;
 
       this.paintEnemy(ctx, pos, enemy, tier, color, alpha);
     });
@@ -349,7 +354,11 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     // ── Jugador ───────────────────────────────────────────────────────────
     const playerPos = this.playerPosition(W, H);
     const playerDeath = this.deathAnimations.find(d => d.targetIdx === 0);
-    const playerAlpha = playerDeath ? Math.max(0, 1 - playerDeath.progress * 1.6) : 1;
+    const playerAlpha = playerDeath
+      ? Math.max(0, 1 - playerDeath.progress * 1.6)
+      : combat.player.hp <= 0
+        ? 0
+        : 1;
 
     this.paintPlayer(ctx, playerPos, combat, playerAlpha);
 
