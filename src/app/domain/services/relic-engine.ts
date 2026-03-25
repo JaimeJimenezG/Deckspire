@@ -76,7 +76,7 @@ export class RelicEngine {
     let nextCombat = combat;
 
     for (const relicId of relicIds) {
-      const def = this.relicDefinitions[relicId();
+      const def = this.relicDefinitions[relicId];
       if (!def) continue;
 
       for (const hook of def.passiveHooks) {
