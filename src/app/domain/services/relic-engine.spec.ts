@@ -109,4 +109,58 @@ describe('RelicEngine', () => {
     expect(engine.applyCombatEndVictoryHooks(lowHp, ['burning-blood']).hp).toBe(76);
     expect(engine.applyCombatEndVictoryHooks(nearCap, ['burning-blood']).hp).toBe(80);
   });
+
+  describe('relic reward count modifiers', () => {
+    it('should modify elite and boss relic counts based on hooks', () => {
+      const definitions = {
+        'relic-mod': {
+          id: 'relic-mod',
+          name: 'Relic Mod',
+          description: '',
+          rarity: 'common',
+          passiveHooks: [
+            {
+              hook: 'combat-end-victory',
+              effect: {
+                type: 'modify-relic-reward-count',
+                target: 'elite',
+                value: 2,
+              },
+            },
+            {
+              hook: 'combat-end-victory',
+              effect: {
+                type: 'modify-relic-reward-count',
+                target: 'boss',
+                value: -1,
+              },
+            },
+          ],
+        },
+      } as const;
+
+      const customEngine = new RelicEngine(
+        new DeckManager(),
+        definitions as unknown as Record<string, any>,
+        ['relic-mod'],
+      );
+
+      expect(customEngine.calculateRelicRewardCount('elite', 1, ['relic-mod'])).toBe(3);
+      expect(customEngine.calculateRelicRewardCount('boss', 1, ['relic-mod'])).toBe(0);
+    });
+  });
+
+  describe('grantRandomRelics()', () => {
+    it('should grant up to count available relics without duplicates', () => {
+      const customEngine = new RelicEngine(new DeckManager(), {}, ['a', 'b', 'c']);
+      const rng = new SeededRandom(1);
+
+      const { relics, granted } = customEngine.grantRandomRelics(['a'], 5, rng);
+
+      expect(relics).toContain('a');
+      expect(granted.length).toBe(2);
+      expect(granted).not.toContain('a');
+      expect(new Set(granted).size).toBe(granted.length);
+    });
+  });
 });
