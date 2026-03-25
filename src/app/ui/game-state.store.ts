@@ -3,8 +3,9 @@ import type { Card } from '../domain/models/card.model';
 import type { EnemyTier } from '../domain/models/enemy.model';
 import type { GameOutcome, GameState, GameStats } from '../domain/models/game-state.model';
 import { ALL_CARDS } from '../domain/data/cards.data';
-import { ALL_RELIC_IDS } from '../domain/data/relics.data';
 import { RewardGenerator } from '../domain/services/reward-generator';
+import { RelicEngine } from '../domain/services/relic-engine';
+import { DeckManager } from '../domain/services/deck-manager';
 import { SeededRandom } from '../domain/services/seeded-random';
 import {
   NEW_GAME_USE_CASE,
@@ -255,6 +256,16 @@ export class GameStateStore {
     const tier: EnemyTier =
       node?.type === 'elite' ? 'elite' : 'normal';
 
+    // Elite rewards: grant a random relic (base 1) plus any equipped modifiers.
+    let relics = state.relics;
+    if (node?.type === 'elite') {
+      const relicEngine = new RelicEngine(new DeckManager());
+      const baseCount = 1;
+      const count = relicEngine.calculateRelicRewardCount('elite', baseCount, relics);
+      const rngRelics = new SeededRandom(state.seed + state.floor * 4001 + 31);
+      relics = relicEngine.grantRandomRelics(relics, count, rngRelics).relics;
+    }
+
     const rng = new SeededRandom(state.seed + state.floor * 1009);
     const rewardGen = new RewardGenerator(REWARD_CARD_POOL);
     const cardOptions = rewardGen.generateCardRewards(tier, state.act, rng);
@@ -262,6 +273,7 @@ export class GameStateStore {
 
     this._state.update(s => ({
       ...s,
+      relics,
       phase: 'reward',
       combat: null,
       reward: { cardOptions, gold },
@@ -280,16 +292,19 @@ export class GameStateStore {
   async declareGameOver(outcome: NonNullable<GameOutcome>): Promise<void> {
     const state = this._state();
 
-    // Aplicar reliquias pendientes del pacto de origen al vencer al boss
+    // Boss victory: grant 1 random relic by default.
+    // If the origin pact is active (`pendingBossRelics`), it overrides the base count.
     let relics = state.relics;
-    if (outcome === 'victory' && state.pendingBossRelics > 0) {
-      const rng = new SeededRandom(state.seed + state.floor * 7919);
-      const available = ALL_RELIC_IDS.filter(id => !relics.includes(id));
-      const toAdd = Math.min(state.pendingBossRelics, available.length);
-      for (let i = 0; i < toAdd; i++) {
-        const idx = rng.nextInt(0, available.length - 1);
-        relics = [...relics, available[idx]];
-        available.splice(idx, 1);
+    if (outcome === 'victory') {
+      const node =
+        state.map?.currentNodeId ? state.map.nodes.get(state.map.currentNodeId) : null;
+
+      if (node?.type === 'boss') {
+        const relicEngine = new RelicEngine(new DeckManager());
+        const baseCount = state.pendingBossRelics > 0 ? state.pendingBossRelics : 1;
+        const count = relicEngine.calculateRelicRewardCount('boss', baseCount, relics);
+        const rngRelics = new SeededRandom(state.seed + state.floor * 7919 + 2);
+        relics = relicEngine.grantRandomRelics(relics, count, rngRelics).relics;
       }
     }
 
