@@ -25,6 +25,23 @@
         </button>
       </header>
 
+      <!-- ── Reliquias equipadas ───────────────────────────────────────── -->
+      @if (relicChips().length > 0) {
+        <section class="deck-viewer__relics-section" aria-label="Reliquias equipadas">
+          <h3 class="deck-viewer__relics-title">Reliquias</h3>
+          <div class="deck-viewer__relics-chips">
+            @for (chip of relicChips(); track chip.id) {
+              <span
+                class="deck-viewer__relic-chip-wrap"
+                [attr.data-tooltip]="chip.tooltip"
+              >
+                <span class="deck-viewer__relic-chip">{{ chip.name }}</span>
+              </span>
+            }
+          </div>
+        </section>
+      }
+
       <!-- ── Filtros por tipo ──────────────────────────────────────── -->
       <nav class="deck-viewer__filters" aria-label="Filtrar cartas por tipo">
         @for (f of filters; track f) {
