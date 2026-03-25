@@ -16,6 +16,11 @@ export type RelicPassiveEffect =
   | { readonly type: 'draw-cards'; readonly value: number }
   | { readonly type: 'heal'; readonly value: number }
   | {
+      readonly type: 'modify-relic-reward-count';
+      readonly target: 'elite' | 'boss';
+      readonly value: number;
+    }
+  | {
       readonly type: 'apply-status';
       readonly status: StatusType;
       readonly stacks: number;

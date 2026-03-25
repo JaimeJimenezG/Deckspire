@@ -1,6 +1,8 @@
+import { ALL_RELIC_IDS } from '../data/relics.data';
 import { RELIC_DEFINITIONS } from '../data/relics.data';
 import type { CombatState } from '../models/combat.model';
 import type { Player } from '../models/player.model';
+import type { RelicDefinition } from '../models/relic.model';
 import { DeckManager, deckStateFromPlayer, playerWithDeckState } from './deck-manager';
 import { SeededRandom } from './seeded-random';
 
@@ -9,7 +11,11 @@ import { SeededRandom } from './seeded-random';
  * Mantiene el dominio puro: recibe estado y retorna nuevo estado inmutable.
  */
 export class RelicEngine {
-  constructor(private readonly deckManager: DeckManager) {}
+  constructor(
+    private readonly deckManager: DeckManager,
+    private readonly relicDefinitions: Readonly<Record<string, RelicDefinition>> = RELIC_DEFINITIONS,
+    private readonly allRelicIds: readonly string[] = ALL_RELIC_IDS,
+  ) {}
 
   applyCombatStartHooks(
     combat: CombatState,
@@ -19,7 +25,7 @@ export class RelicEngine {
     let nextCombat = combat;
 
     for (const relicId of relicIds) {
-      const def = RELIC_DEFINITIONS[relicId];
+      const def = this.relicDefinitions[relicId];
       if (!def) continue;
 
       for (const hook of def.passiveHooks) {
@@ -70,7 +76,7 @@ export class RelicEngine {
     let nextCombat = combat;
 
     for (const relicId of relicIds) {
-      const def = RELIC_DEFINITIONS[relicId];
+      const def = this.relicDefinitions[relicId();
       if (!def) continue;
 
       for (const hook of def.passiveHooks) {
@@ -96,7 +102,7 @@ export class RelicEngine {
     let nextPlayer = player;
 
     for (const relicId of relicIds) {
-      const def = RELIC_DEFINITIONS[relicId];
+      const def = this.relicDefinitions[relicId];
       if (!def) continue;
 
       for (const hook of def.passiveHooks) {
@@ -111,5 +117,62 @@ export class RelicEngine {
     }
 
     return nextPlayer;
+  }
+
+  /**
+   * Calculates the number of relics to grant after defeating a node
+   * of type `elite` or `boss`.
+   *
+   * Base comes from game rules; equipped relics can modify it via:
+   * `passiveHooks: [{ hook: 'combat-end-victory', effect: { type:
+   *   'modify-relic-reward-count', target: 'elite'|'boss', value } }]`
+   */
+  calculateRelicRewardCount(
+    nodeType: 'elite' | 'boss',
+    baseCount: number,
+    relicIds: readonly string[],
+  ): number {
+    let delta = 0;
+
+    for (const relicId of relicIds) {
+      const def = this.relicDefinitions[relicId];
+      if (!def) continue;
+
+      for (const hook of def.passiveHooks) {
+        if (hook.hook !== 'combat-end-victory') continue;
+        if (hook.effect.type !== 'modify-relic-reward-count') continue;
+        if (hook.effect.target !== nodeType) continue;
+
+        delta += hook.effect.value;
+      }
+    }
+
+    return Math.max(0, baseCount + delta);
+  }
+
+  /**
+   * Grants up to `count` random relics that are not already owned.
+   * Deterministic with the provided `rng` (SeededRandom).
+   */
+  grantRandomRelics(
+    ownedRelicIds: readonly string[],
+    count: number,
+    rng: SeededRandom,
+  ): { readonly relics: readonly string[]; readonly granted: readonly string[] } {
+    const resultRelics = [...ownedRelicIds];
+    const available = this.allRelicIds.filter(id => !resultRelics.includes(id));
+
+    const safeCount = Math.max(0, Math.min(count, available.length));
+    const granted: string[] = [];
+
+    for (let i = 0; i < safeCount; i++) {
+      const idx = rng.nextInt(0, available.length - 1);
+      const relicId = available[idx];
+      resultRelics.push(relicId);
+      granted.push(relicId);
+      available.splice(idx, 1);
+    }
+
+    return { relics: resultRelics, granted };
   }
 }
