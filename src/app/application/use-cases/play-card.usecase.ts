@@ -44,11 +44,12 @@ export class NoCombatActiveError extends Error {
  * Orchestration flow:
  *  1. Guard: active combat + player turn + sufficient energy
  *  2. Resolve effects via CombatEngine (hand / energy / combat actualizado)
- *  3. Optional `onCombatCommitted` (p. ej. actualizar UI de la mano al instante)
- *  4. Animate card play spark (renderer)
- *  5. Animate damage / block feedback (renderer)
- *  6. Animate enemy deaths if any (renderer)
- *  7. Return updated GameState
+ *  3. Animate card play spark (renderer)
+ *  4. Animate damage / block feedback (renderer)
+ *  5. Queue death animations (sync) so el canvas tenga `deathAnimations` antes del commit
+ *  6. Optional `onCombatCommitted` — notificar UI con estado ya resuelto (mano, HP enemigo…)
+ *  7. Await death animations
+ *  8. Return updated GameState
  */
 export class PlayCardUseCaseImpl implements PlayCardUseCase {
   constructor(
@@ -82,7 +83,6 @@ export class PlayCardUseCaseImpl implements PlayCardUseCase {
 
     const newCombat = this.combatEngine.resolveCardEffects(card, targetIdx, combat, rng);
     const newState: GameState = { ...state, combat: newCombat };
-    options?.onCombatCommitted?.(newState);
 
     await this.renderer.animateCardPlay(card);
 
@@ -101,13 +101,21 @@ export class PlayCardUseCaseImpl implements PlayCardUseCase {
       await this.renderer.animateBlock(0, blockGained);
     }
 
-    // Animate deaths for enemies that just died.
+    // Encolar muertes antes de `onCombatCommitted`: durante daño/bloqueo el store sigue
+    // con el enemigo vivo; al hacer commit las animaciones ya están activas (sin parpadeo).
+    const deathWaits: Promise<void>[] = [];
     for (let i = 0; i < combat.enemies.length; i++) {
       const wasAlive = combat.enemies[i].hp > 0;
       const isDead = newCombat.enemies[i]?.hp === 0;
       if (wasAlive && isDead) {
-        await this.renderer.animateDeath(i + 1);
+        deathWaits.push(this.renderer.animateDeath(i + 1));
       }
+    }
+
+    options?.onCombatCommitted?.(newState);
+
+    for (const p of deathWaits) {
+      await p;
     }
 
     return newState;
