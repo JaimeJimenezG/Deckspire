@@ -306,6 +306,45 @@ describe('EndTurnUseCaseImpl', () => {
     expect(result.combat!.phase).toBe('combat-end-victory');
   });
 
+  it('should heal player on victory when burning-blood is equipped', async () => {
+    const enemyAboutToDie = makeEnemy({
+      hp: 1,
+      currentIntent: attackIntent,
+    });
+    const playerWithThorns: Player = {
+      ...makePlayer({ hp: 60, maxHp: 80 }),
+      statusEffects: [{ type: 'thorns', stacks: 10 }],
+    };
+    const state = {
+      ...makeGameState(
+        makeActiveCombat({
+          player: playerWithThorns,
+          enemies: [enemyAboutToDie],
+        }),
+      ),
+      relics: ['burning-blood'],
+    };
+    const result = await useCase.execute(state);
+    expect(result.combat!.phase).toBe('combat-end-victory');
+    expect(result.combat!.player.hp).toBe(56);
+    expect(result.player.hp).toBe(56);
+  });
+
+  it('should apply orichalcum block before enemy attacks', async () => {
+    const state = {
+      ...makeGameState(
+        makeActiveCombat({
+          player: makePlayer({ block: 0, hp: 80 }),
+          enemies: [makeEnemy({ currentIntent: attackIntent })],
+        }),
+      ),
+      relics: ['orichalcum'],
+    };
+    const result = await useCase.execute(state);
+    // Enemy attacks for 10, Orichalcum grants 6 first -> 4 HP lost.
+    expect(result.combat!.player.hp).toBe(76);
+  });
+
   // ── Next intent assignment ────────────────────────────────────────────────
 
   it('should assign a non-null next intent to alive enemies', async () => {

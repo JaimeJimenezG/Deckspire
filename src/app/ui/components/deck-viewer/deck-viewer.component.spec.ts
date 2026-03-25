@@ -59,15 +59,17 @@ function buildMockStore() {
   const deckViewerOpenSig = signal(false);
   const combatSig = signal<CombatState | null>(null);
   const deckSig = signal<Card[]>([]);
+  const relicsSig = signal<string[]>([]);
 
   const store = {
     deckViewerOpen: deckViewerOpenSig,
     combat: combatSig,
     deck: deckSig,
+    relics: relicsSig,
     closeDeckViewer: jasmine.createSpy('closeDeckViewer'),
   };
 
-  return { store, deckViewerOpenSig, combatSig, deckSig };
+  return { store, deckViewerOpenSig, combatSig, deckSig, relicsSig };
 }
 
 // ---------------------------------------------------------------------------
@@ -80,6 +82,7 @@ describe('DeckViewerComponent', () => {
   let deckViewerOpenSig: ReturnType<typeof signal<boolean>>;
   let combatSig: ReturnType<typeof signal<CombatState | null>>;
   let deckSig: ReturnType<typeof signal<Card[]>>;
+  let relicsSig: ReturnType<typeof signal<string[]>>;
   let mockStore: ReturnType<typeof buildMockStore>['store'];
 
   beforeEach(async () => {
@@ -88,6 +91,7 @@ describe('DeckViewerComponent', () => {
     deckViewerOpenSig = built.deckViewerOpenSig;
     combatSig = built.combatSig;
     deckSig = built.deckSig;
+    relicsSig = built.relicsSig;
 
     await TestBed.configureTestingModule({
       imports: [DeckViewerComponent],
@@ -283,11 +287,25 @@ describe('DeckViewerComponent', () => {
     component.setFilter('skill');
     fixture.detectChanges();
 
-    const activeBtn = fixture.debugElement.query(
-      By.css('.deck-viewer__filter-btn--active'),
-    );
+    const activeBtn = fixture.debugElement.query(By.css('.deck-viewer__filter-btn--active'));
     expect(activeBtn).toBeTruthy();
     expect(activeBtn.nativeElement.textContent).toContain('Habilidades');
+  });
+
+  // ── Reliquias ────────────────────────────────────────────────────────────
+
+  it('debe renderizar la sección de reliquias cuando hay reliquias', () => {
+    deckViewerOpenSig.set(true);
+    relicsSig.set(['burning-blood']);
+    fixture.detectChanges();
+
+    const chips = fixture.debugElement.queryAll(By.css('.deck-viewer__relic-chip'));
+    expect(chips.length).toBe(1);
+    expect(chips[0].nativeElement.textContent).toContain('Burning Blood');
+
+    const wrap = fixture.debugElement.query(By.css('.deck-viewer__relic-chip-wrap'));
+    const tooltip = wrap?.nativeElement.getAttribute('data-tooltip') ?? '';
+    expect(tooltip).toContain('cura 6 HP');
   });
 
   // ── Template: mensaje vacío ────────────────────────────────────────────────
