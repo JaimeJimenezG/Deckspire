@@ -32,6 +32,11 @@ interface DeathAnimation {
   progress: number;
   readonly duration: number;
   readonly resolve: () => void;
+  /**
+   * True si `renderScene` ya tenía HP≤0 al encolar la animación (p. ej. `onCombatCommitted`
+   * antes de `animateDeath` en jugar carta). Evita que la curva empiece en alpha=1 y parpadee.
+   */
+  readonly committedDead: boolean;
 }
 
 interface ScreenShake {
@@ -128,6 +133,15 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     this.combat = combat;
   }
 
+  /** targetIdx: 0 = jugador, 1+ = enemigo (convención del renderer). */
+  private isCombatTargetDead(targetIdx: number): boolean {
+    const c = this.combat;
+    if (!c) return false;
+    if (targetIdx === 0) return c.player.hp <= 0;
+    const enemy = c.enemies[targetIdx - 1];
+    return enemy != null && enemy.hp <= 0;
+  }
+
   /**
    * Anima el impacto de daño sobre el objetivo:
    * flash blanco sobre la entidad, chispas rojas, número flotante y screen shake.
@@ -196,6 +210,7 @@ export class CanvasCombatRenderer implements CombatRendererPort {
         progress: 0,
         duration: 0.8,
         resolve,
+        committedDead: this.isCombatTargetDead(targetIdx),
       });
     });
   }
@@ -343,7 +358,9 @@ export class CanvasCombatRenderer implements CombatRendererPort {
       const deathAnim = this.deathAnimations.find(d => d.targetIdx === idx + 1);
       // Sin animación activa, los muertos (hp≤0) deben permanecer invisibles.
       const alpha = deathAnim
-        ? Math.max(0, 1 - deathAnim.progress * 1.6)
+        ? deathAnim.committedDead
+          ? 0
+          : Math.max(0, 1 - deathAnim.progress * 1.6)
         : enemy.hp <= 0
           ? 0
           : 1;
@@ -355,7 +372,9 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     const playerPos = this.playerPosition(W, H);
     const playerDeath = this.deathAnimations.find(d => d.targetIdx === 0);
     const playerAlpha = playerDeath
-      ? Math.max(0, 1 - playerDeath.progress * 1.6)
+      ? playerDeath.committedDead
+        ? 0
+        : Math.max(0, 1 - playerDeath.progress * 1.6)
       : combat.player.hp <= 0
         ? 0
         : 1;
