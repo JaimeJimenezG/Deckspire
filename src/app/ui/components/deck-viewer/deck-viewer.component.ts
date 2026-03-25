@@ -94,7 +94,7 @@ export class DeckViewerComponent {
       case 'combat-end-victory':
         return 'Victoria';
       case 'map-node-enter':
-        return 'Al entrar a un nodo';
+        return 'Al entrar en un nodo';
       case 'rest-site-enter':
         return 'Al entrar al descanso';
     }
