@@ -1,0 +1,8 @@
+# Workers Static Assets (`wrangler deploy --config wrangler.workers.toml`).
+# No mezclar [assets] con el wrangler.toml de Pages: Pages no admite esa sección.
+name = "deckspire"
+compatibility_date = "2025-03-01"
+
+[assets]
+directory = "dist/deckspire/browser"
+not_found_handling = "single-page-application"

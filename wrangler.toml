@@ -1,0 +1,7 @@
+# Cloudflare Pages — `wrangler pages deploy` / npm run cf:pages:deploy.
+# Workers con assets estáticos: wrangler.workers.toml + npm run cf:deploy.
+#
+# Angular escribe en dist/deckspire/browser.
+name = "deckspire"
+compatibility_date = "2025-03-01"
+pages_build_output_dir = "dist/deckspire/browser"

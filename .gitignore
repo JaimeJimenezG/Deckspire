@@ -33,6 +33,7 @@ yarn-error.log
 
 # Miscellaneous
 package-lock.json
+.wrangler/
 .angular/
 /.angular/cache
 .sass-cache/

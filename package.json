@@ -8,6 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
+    "cf:deploy": "npm run build && wrangler deploy --config wrangler.workers.toml",
+    "cf:pages:deploy": "npm run build && wrangler pages deploy dist/deckspire/browser --project-name=deckspire",
+    "cf:pages:dev": "npm run build && wrangler pages dev dist/deckspire/browser",
     "prepare": "husky"
   },
   "private": true,
@@ -39,6 +42,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "wrangler": "^4.77.0"
   }
 }
