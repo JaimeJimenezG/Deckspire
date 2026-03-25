@@ -103,7 +103,8 @@ describe('RestSiteComponent', () => {
 
   it('debe mostrar las opciones cuando no se ha tomado ninguna acción', () => {
     const options = fixture.debugElement.queryAll(By.css('.rest-site__option'));
-    expect(options.length).toBe(2);
+    // Descansar, Forjar y Omitir
+    expect(options.length).toBe(3);
   });
 
   // ── healAmount ────────────────────────────────────────────────────────────

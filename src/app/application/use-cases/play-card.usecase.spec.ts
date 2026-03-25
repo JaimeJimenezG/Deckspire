@@ -174,12 +174,12 @@ describe('PlayCardUseCaseImpl', () => {
 
   it('should invoke onCombatCommitted before animateCardPlay resolves', async () => {
     let committed = false;
-    mockRenderer.animateCardPlay.and.returnValue(
-      new Promise<void>(resolve => {
+    mockRenderer.animateCardPlay.and.callFake(() => {
+      return new Promise<void>(resolve => {
         expect(committed).toBe(true);
         resolve();
-      }),
-    );
+      });
+    });
     const state = makeGameState();
     await useCase.execute(strikeCard, 0, state, {
       onCombatCommitted: () => {
