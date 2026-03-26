@@ -50,6 +50,8 @@ $card-height: 180px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  transform: scale(var(--hand-fan-scale, 1));
+  transform-origin: bottom center;
   // Aire bajo el abanico (borde de la franja + cartas menos pegadas al borde)
   padding-bottom: 22px;
   pointer-events: none;

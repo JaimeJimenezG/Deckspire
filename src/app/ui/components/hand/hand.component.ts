@@ -62,6 +62,17 @@ const DRAW_STAGGER_MS = 55;
 /** Per-card stagger for end-of-turn discard animation (ms per index position). */
 const DISCARD_STAGGER_MS = 35;
 
+/** Ghost card dimensions in px (must match `card.component.scss`). */
+const CARD_WIDTH_PX = 120;
+const CARD_HEIGHT_PX = 180;
+
+/** Max drag ghost scale used in SCSS (`.hand__ghost--targeting-enemy`). */
+const GHOST_MAX_SCALE = 1.18;
+
+/** Anchor used by the ghost CSS transform (`translate(-50%, -60%)`). */
+const GHOST_ANCHOR_X = 0.5;
+const GHOST_ANCHOR_Y = 0.6;
+
 // ---------------------------------------------------------------------------
 // Helpers (pure – exported for unit testing)
 // ---------------------------------------------------------------------------
@@ -112,6 +123,29 @@ export function fanZIndex(
   if (hovered) return 200;
   const center = (total - 1) / 2;
   return Math.round(100 - Math.abs(index - center) * 5);
+}
+
+/**
+ * Clamps the drag ghost anchor point so the full card stays inside viewport.
+ */
+export function clampDragPointToViewport(
+  x: number,
+  y: number,
+  viewportWidth: number,
+  viewportHeight: number,
+): { x: number; y: number } {
+  const ghostWidth = CARD_WIDTH_PX * GHOST_MAX_SCALE;
+  const ghostHeight = CARD_HEIGHT_PX * GHOST_MAX_SCALE;
+
+  const minX = ghostWidth * GHOST_ANCHOR_X;
+  const maxX = viewportWidth - ghostWidth * (1 - GHOST_ANCHOR_X);
+  const minY = ghostHeight * GHOST_ANCHOR_Y;
+  const maxY = viewportHeight - ghostHeight * (1 - GHOST_ANCHOR_Y);
+
+  return {
+    x: Math.min(Math.max(x, minX), maxX),
+    y: Math.min(Math.max(y, minY), maxY),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -281,7 +315,14 @@ export class HandComponent implements OnDestroy {
     this.draggingIndex.set(index);
     this.dragStartX = event.clientX;
     this.dragStartY = event.clientY;
-    this.dragPos.set({ x: event.clientX, y: event.clientY });
+    this.dragPos.set(
+      clampDragPointToViewport(
+        event.clientX,
+        event.clientY,
+        window.innerWidth,
+        window.innerHeight,
+      ),
+    );
     this.isDragActive.set(false);
 
     this.playThresholdY = window.innerHeight * PLAY_ZONE_HEIGHT_FRACTION;
@@ -294,7 +335,14 @@ export class HandComponent implements OnDestroy {
   private onPointerMove(event: PointerEvent): void {
     if (this.draggingIndex() === -1) return;
     event.preventDefault();
-    this.dragPos.set({ x: event.clientX, y: event.clientY });
+    this.dragPos.set(
+      clampDragPointToViewport(
+        event.clientX,
+        event.clientY,
+        window.innerWidth,
+        window.innerHeight,
+      ),
+    );
 
     const totalMovement =
       Math.abs(event.clientX - this.dragStartX) +

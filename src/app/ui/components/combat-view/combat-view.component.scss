@@ -406,6 +406,7 @@ $color-defeat:  #7f8c8d;
   left: 0;
   right: 0;
   z-index: 20;
+  --hand-fan-scale: 1;
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────
@@ -483,8 +484,7 @@ $color-defeat:  #7f8c8d;
 
   .combat-view__hand {
     bottom: 6px;
-    transform: scale(0.88);
-    transform-origin: bottom center;
+    --hand-fan-scale: 0.88;
   }
 
   .hud__actions {
@@ -506,7 +506,7 @@ $color-defeat:  #7f8c8d;
   }
 
   .combat-view__hand {
-    transform: scale(0.82);
+    --hand-fan-scale: 0.82;
     bottom: 4px;
   }
 
