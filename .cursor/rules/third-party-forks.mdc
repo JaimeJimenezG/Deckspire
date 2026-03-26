@@ -1,0 +1,27 @@
+---
+description: Submódulos y third-party solo vía fork propio; nunca seguir upstream directamente.
+alwaysApply: true
+---
+
+# Third-party y submódulos (forks)
+
+## Principio
+
+- **No actualizar** `third-party/` contra el repositorio upstream original (p. ej. LiberatedPixelCup) con `git submodule update --remote`, merges desde upstream en caliente ni sustitución ad-hoc del árbol sin pasar por el fork.
+- Todo cambio en el generador LPC (patches como `deckspire-compose.js`, `renderer.js`, etc.) vive en **nuestro fork**; Deckspire solo **apunta el submódulo** a ese fork y fija el commit SHA que hay que revisar.
+
+## Submódulo Universal LPC
+
+- URL canónica del submódulo: la definida en **`.gitmodules`** (fork bajo la misma cuenta/org que el resto del proyecto, no el repo upstream).
+- Tras clonar Deckspire: `git submodule update --init` (sin `--remote`).
+- Si cambia la URL del fork: `git submodule sync` y revisar `origin` dentro del submódulo.
+
+## Flujo de trabajo
+
+1. Cambios en el generador: rama en el **fork**, PR/merge ahí, publicar el commit.
+2. En Deckspire: `cd third-party/Universal-LPC-Spritesheet-Character-Generator && git fetch && git checkout <commit>` (o merge del fork), luego commit en Deckspire actualizando el puntero del submódulo.
+3. No ejecutar en el agente: “actualiza el submódulo a la última versión de LiberatedPixelCup” salvo petición explícita del usuario y plan de pruebas.
+
+## Créditos y licencia
+
+- Atribución y enlaces al proyecto LPC original pueden seguir en UI/documentación; eso **no** sustituye la política de código: el **código que empaquetamos** proviene del fork bajo nuestro control.
