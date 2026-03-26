@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "lavender",
+      "name": "Body color (lavender)"
+    },
+    "head": {
+      "itemId": "heads_alien",
+      "variant": "lavender",
+      "name": "Alien (lavender)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "sky",
+      "name": "Longsleeve (sky)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "navy",
+      "name": "Cuffed Pants (navy)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "black",
+      "name": "Basic Shoes (black)"
+    },
+    "wings": {
+      "itemId": "wings_pixie_transparent",
+      "variant": "lavender",
+      "name": "Pixie wings (lavender, transparent)"
+    },
+    "weapon": {
+      "itemId": "weapon_magic_wand",
+      "variant": "wand",
+      "name": "Wand"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import { AppAssetUrlResolver } from '../app-asset-url.resolver';
 import { LPC_SPRITESHEET_BASE_URL } from '../../di/tokens';
 import type { LpcComposeResult } from '../../domain/ports/outbound/lpc-sprite-composer.port';
 import type { LpcSpriteComposerPort } from '../../domain/ports/outbound/lpc-sprite-composer.port';
@@ -28,7 +29,10 @@ export class LpcBrowserComposerService implements LpcSpriteComposerPort {
   private composeModule: Promise<ComposeModule> | null = null;
   private readonly cache = new Map<string, LpcComposeResult>();
 
-  constructor(@Inject(LPC_SPRITESHEET_BASE_URL) private readonly spriteSheetsBase: string) {}
+  constructor(
+    @Inject(LPC_SPRITESHEET_BASE_URL) private readonly spriteSheetsBase: string,
+    private readonly appAssets: AppAssetUrlResolver,
+  ) {}
 
   async compose(exportJsonString: string): Promise<LpcComposeResult> {
     const key = fingerprintExportJson(exportJsonString);
@@ -47,15 +51,34 @@ export class LpcBrowserComposerService implements LpcSpriteComposerPort {
     const mod = await this.ensureComposeModule();
     const out = await mod.composeFromExportJson(exportJsonString);
 
+    /**
+     * El generador Universal LPC reutiliza un único lienzo global por composición.
+     * Sin copia, el jugador y cada enemigo apuntarían al mismo elemento y el último
+     * `renderCharacter` pisa los píxeles de los demás.
+     */
+    const textureHandle = this.snapshotLpcSheet(out.canvas);
+
     const credits = (out.credits ?? []) as LpcCreditLine[];
     const result: LpcComposeResult = {
       sheetWidth: out.sheetWidth,
       sheetHeight: out.sheetHeight,
       credits,
-      textureHandle: out.canvas,
+      textureHandle,
     };
     this.cache.set(key, result);
     return result;
+  }
+
+  private snapshotLpcSheet(source: HTMLCanvasElement): HTMLCanvasElement {
+    const copy = document.createElement('canvas');
+    copy.width = source.width;
+    copy.height = source.height;
+    const ctx = copy.getContext('2d', { willReadFrequently: true });
+    if (!ctx) {
+      throw new Error('LPC: no se pudo crear el contexto para copiar el spritesheet');
+    }
+    ctx.drawImage(source, 0, 0);
+    return copy;
   }
 
   private normalizeBase(url: string): string {
@@ -67,7 +90,7 @@ export class LpcBrowserComposerService implements LpcSpriteComposerPort {
     if (this.metadataReady) {
       return this.metadataReady;
     }
-    const src = new URL('/lpc-generator/item-metadata.js', document.baseURI).href;
+    const src = this.appAssets.resolve('lpc-generator/item-metadata.js');
     this.metadataReady = this.loadScriptOnce(src).then(() => {
       const w = globalThis as unknown as { itemMetadata?: unknown };
       if (!w.itemMetadata || typeof w.itemMetadata !== 'object') {
@@ -81,7 +104,7 @@ export class LpcBrowserComposerService implements LpcSpriteComposerPort {
     if (this.composeModule) {
       return this.composeModule;
     }
-    const url = new URL('/lpc-generator/sources/deckspire-compose.js', document.baseURI).href;
+    const url = this.appAssets.resolve('lpc-generator/sources/deckspire-compose.js');
     this.composeModule = import(/* webpackIgnore: true */ url).then(
       (m) => m as ComposeModule,
     );

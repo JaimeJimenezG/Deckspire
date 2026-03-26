@@ -1,22 +1,17 @@
 {
   "version": 2,
   "bodyType": "male",
-  "selectedAnimation": "idle",
+  "selectedAnimation": "combat",
   "selections": {
     "body": {
       "itemId": "body",
-      "variant": "light",
-      "name": "Body color (light)"
+      "variant": "taupe",
+      "name": "Body color (taupe)"
     },
     "head": {
-      "itemId": "heads_human_male",
-      "variant": "light",
-      "name": "Human male (light)"
-    },
-    "expression": {
-      "itemId": "face_neutral",
-      "variant": "light",
-      "name": "Neutral (light)"
+      "itemId": "heads_orc_male",
+      "variant": "olive",
+      "name": "Orc male (olive)"
     },
     "clothes": {
       "itemId": "torso_clothes_longsleeve",
@@ -34,9 +29,14 @@
       "name": "Basic Shoes (brown)"
     },
     "belt": {
-      "itemId": "belt_formal",
+      "itemId": "belt_leather",
       "variant": "brown",
-      "name": "Formal Belt (brown)"
+      "name": "Leather Belt (brown)"
+    },
+    "weapon": {
+      "itemId": "weapon_blunt_club",
+      "variant": "club",
+      "name": "Club"
     }
   }
 }

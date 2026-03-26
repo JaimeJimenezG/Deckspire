@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "light",
+      "name": "Body color (light)"
+    },
+    "head": {
+      "itemId": "heads_human_male",
+      "variant": "olive",
+      "name": "Human male (olive)"
+    },
+    "expression": {
+      "itemId": "face_neutral",
+      "variant": "light",
+      "name": "Neutral (light)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "black",
+      "name": "Longsleeve (black)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "black",
+      "name": "Cuffed Pants (black)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "black",
+      "name": "Basic Shoes (black)"
+    },
+    "hat": {
+      "itemId": "hat_hood_cloth",
+      "variant": "hood_black",
+      "name": "Hood (black)"
+    },
+    "cape": {
+      "itemId": "cape_solid",
+      "variant": "maroon",
+      "name": "Cape (maroon)"
+    },
+    "weapon": {
+      "itemId": "weapon_magic_simple",
+      "variant": "simple",
+      "name": "Simple staff (magic)"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "taupe",
+      "name": "Body color (taupe)"
+    },
+    "head": {
+      "itemId": "heads_wolf_male",
+      "variant": "fur_grey",
+      "name": "Wolf male (grey fur)"
+    },
+    "bandages": {
+      "itemId": "torso_bandages",
+      "variant": "white",
+      "name": "Bandages (white)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "charcoal",
+      "name": "Cuffed Pants (charcoal)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "black",
+      "name": "Basic Shoes (black)"
+    },
+    "weapon": {
+      "itemId": "weapon_blunt_club",
+      "variant": "club",
+      "name": "Club"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "bodyType": "male",
-  "selectedAnimation": "idle",
+  "selectedAnimation": "combat",
   "selections": {
     "body": {
       "itemId": "body",
@@ -20,23 +20,33 @@
     },
     "clothes": {
       "itemId": "torso_clothes_longsleeve",
-      "variant": "forest",
-      "name": "Longsleeve (forest)"
+      "variant": "purple",
+      "name": "Longsleeve (purple)"
     },
     "legs": {
       "itemId": "legs_cuffed",
-      "variant": "brown",
-      "name": "Cuffed Pants (brown)"
+      "variant": "navy",
+      "name": "Cuffed Pants (navy)"
     },
     "shoes": {
       "itemId": "feet_shoes_basic",
-      "variant": "brown",
-      "name": "Basic Shoes (brown)"
+      "variant": "black",
+      "name": "Basic Shoes (black)"
     },
-    "belt": {
-      "itemId": "belt_formal",
-      "variant": "brown",
-      "name": "Formal Belt (brown)"
+    "hat": {
+      "itemId": "hat_magic_wizard",
+      "variant": "base_black",
+      "name": "Wizard hat (black)"
+    },
+    "cape": {
+      "itemId": "cape_solid",
+      "variant": "navy",
+      "name": "Cape (navy)"
+    },
+    "weapon": {
+      "itemId": "weapon_magic_wand",
+      "variant": "wand",
+      "name": "Wand"
     }
   }
 }

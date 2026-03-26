@@ -29,6 +29,7 @@ import { LoadGameUseCaseImpl } from '../../application/use-cases/load-game.useca
 import { ResolveEventUseCaseImpl } from '../../application/use-cases/resolve-event.usecase';
 import { IndexedDbGameRepository } from '../../infrastructure/persistence/indexed-db-game-repository';
 import { CanvasCombatRenderer } from '../../infrastructure/canvas/canvas-combat-renderer';
+import { AppAssetUrlResolver } from '../../infrastructure/app-asset-url.resolver';
 
 import { CombatEngine } from '../../domain/services/combat-engine';
 import { DeckManager } from '../../domain/services/deck-manager';
@@ -97,9 +98,12 @@ export const GAME_PROVIDERS: Provider[] = [
   },
   {
     provide: COMBAT_RENDERER,
-    deps: [LPC_SPRITE_COMPOSER, PLAYER_LPC_PRESET_URL],
-    useFactory: (lpc: LpcSpriteComposerPort, presetUrl: string | null) =>
-      new CanvasCombatRenderer(lpc, presetUrl),
+    deps: [LPC_SPRITE_COMPOSER, PLAYER_LPC_PRESET_URL, AppAssetUrlResolver],
+    useFactory: (
+      lpc: LpcSpriteComposerPort,
+      presetUrl: string | null,
+      appAssets: AppAssetUrlResolver,
+    ) => new CanvasCombatRenderer(lpc, presetUrl, appAssets),
   },
 
   // ── Casos de uso ──────────────────────────────────────────────────────────

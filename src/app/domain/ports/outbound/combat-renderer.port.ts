@@ -1,6 +1,12 @@
 import type { Card } from '../../models/card.model';
 import type { CombatState } from '../../models/combat.model';
 
+/** Opciones extra para `animateDamage` (p. ej. qué enemigo ataca al jugador). */
+export interface AnimateDamageOptions {
+  /** Índice 0-based en `CombatState.enemies` del atacante; solo aplica si el objetivo es el jugador. */
+  readonly attackerEnemyIdx?: number;
+}
+
 /**
  * Puerto de salida para el renderizado del combate.
  *
@@ -21,7 +27,11 @@ export interface CombatRendererPort {
    * @param targetIdx - 0 = jugador; >= 1 = índice del enemigo en el array de enemigos.
    * @param amount    - Cantidad de daño infligido (ya descontado bloqueo).
    */
-  animateDamage(targetIdx: number, amount: number): Promise<void>;
+  animateDamage(
+    targetIdx: number,
+    amount: number,
+    options?: AnimateDamageOptions,
+  ): Promise<void>;
 
   /**
    * Anima la ganancia de bloqueo sobre el combatiente en la posición indicada.

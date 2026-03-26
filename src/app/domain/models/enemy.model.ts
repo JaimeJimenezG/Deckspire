@@ -146,6 +146,11 @@ export interface EnemyDefinition {
   readonly baseHp: HpRange;
   readonly pattern: EnemyPattern;
   readonly onDeath?: DeathEffect;
+  /**
+   * Ruta bajo `public/` (sin dominio), p. ej. `lpc-presets/enemies/bandit-hood.json`.
+   * Si está definida, el combate rasteriza este preset LPC en lugar del vector.
+   */
+  readonly lpcPresetPath?: string;
 }
 
 // ---------------------------------------------------------------------------

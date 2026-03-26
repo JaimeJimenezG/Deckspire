@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "bodyType": "female",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "light",
+      "name": "Body color (light)"
+    },
+    "head": {
+      "itemId": "heads_human_female",
+      "variant": "lavender",
+      "name": "Human female (lavender)"
+    },
+    "expression": {
+      "itemId": "face_neutral",
+      "variant": "light",
+      "name": "Neutral (light)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_robe",
+      "variant": "purple",
+      "name": "Robe (purple)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "black",
+      "name": "Basic Shoes (black)"
+    },
+    "hat": {
+      "itemId": "hat_magic_celestial",
+      "variant": "purple",
+      "name": "Celestial hat (purple)"
+    },
+    "cape": {
+      "itemId": "cape_solid",
+      "variant": "lavender",
+      "name": "Cape (lavender)"
+    },
+    "weapon": {
+      "itemId": "weapon_magic_wand",
+      "variant": "wand",
+      "name": "Wand"
+    }
+  }
+}

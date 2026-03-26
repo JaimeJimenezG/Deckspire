@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "bodyType": "male",
-  "selectedAnimation": "idle",
+  "bodyType": "female",
+  "selectedAnimation": "combat",
   "selections": {
     "body": {
       "itemId": "body",
@@ -9,9 +9,9 @@
       "name": "Body color (light)"
     },
     "head": {
-      "itemId": "heads_human_male",
+      "itemId": "heads_human_female",
       "variant": "light",
-      "name": "Human male (light)"
+      "name": "Human female (light)"
     },
     "expression": {
       "itemId": "face_neutral",
@@ -20,23 +20,28 @@
     },
     "clothes": {
       "itemId": "torso_clothes_longsleeve",
-      "variant": "forest",
-      "name": "Longsleeve (forest)"
+      "variant": "teal",
+      "name": "Longsleeve (teal)"
     },
     "legs": {
       "itemId": "legs_cuffed",
-      "variant": "brown",
-      "name": "Cuffed Pants (brown)"
+      "variant": "forest",
+      "name": "Cuffed Pants (forest)"
     },
     "shoes": {
       "itemId": "feet_shoes_basic",
       "variant": "brown",
       "name": "Basic Shoes (brown)"
     },
-    "belt": {
-      "itemId": "belt_formal",
-      "variant": "brown",
-      "name": "Formal Belt (brown)"
+    "wings": {
+      "itemId": "wings_feathered",
+      "variant": "white",
+      "name": "Feathered wings (white)"
+    },
+    "weapon": {
+      "itemId": "weapon_magic_wand",
+      "variant": "wand",
+      "name": "Wand"
     }
   }
 }
