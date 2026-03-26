@@ -114,6 +114,14 @@ export class ShopComponent {
     return `${def.name}\n${def.description}${abilitiesPart}`;
   }
 
+  relicInlineDescription(relicId: string): string {
+    const def = RELIC_DEFINITIONS[relicId];
+    if (!def) return 'Sin descripción.';
+    const firstHook = def.passiveHooks[0];
+    if (!firstHook) return def.description;
+    return `${def.description} · ${this.hookLabel(firstHook.hook)}: ${this.effectToText(firstHook.effect)}.`;
+  }
+
   async buyCard(item: ShopItem): Promise<void> {
     if (item.sold || !this.canAfford(item.price)) return;
     await this.store.buyCard(item.id);
@@ -135,5 +143,9 @@ export class ShopComponent {
 
   leave(): void {
     this.store.leaveShop();
+  }
+
+  openDeckViewer(): void {
+    this.store.openDeckViewer();
   }
 }

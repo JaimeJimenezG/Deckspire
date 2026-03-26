@@ -70,7 +70,7 @@ function buildFirstNodeEvent(rng: SeededRandom): GameEvent {
     title: 'El Pacto de Origen',
     icon: '⚖️',
     description:
-      'Al adentrarte en la Aguja, una entidad antigua te detiene. Su voz resuena sin palabras en tu mente: «Antes de comenzar, debes elegir el precio de tu ambición». Tres caminos se abren ante ti.',
+      'Al adentrarte en la Torre, una entidad antigua te detiene. Su voz resuena sin palabras en tu mente: «Antes de comenzar, debes elegir el precio de tu ambición». Tres caminos se abren ante ti.',
     choices,
   };
 }

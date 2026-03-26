@@ -53,6 +53,7 @@
 @if (showDeckButton()) {
   <button
     class="deck-fab"
+    [class.deck-fab--combat]="phase() === 'combat'"
     (click)="openDeckViewer()"
     aria-label="Ver mazo"
     title="Ver mazo"

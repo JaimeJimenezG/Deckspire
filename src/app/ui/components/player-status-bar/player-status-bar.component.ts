@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { GameStateStore } from '../../game-state.store';
 import { STATUS_DEFINITIONS } from '../../../domain/models/status-effect.model';
@@ -160,4 +160,124 @@ export class PlayerStatusBarComponent {
       tooltip: this.relicTooltip(id),
     })),
   );
+
+  readonly menuOpen = computed(() => this._menuOpen());
+  readonly debugOpen = computed(() => this._debugOpen());
+  readonly debugMessage = computed(() => this._debugMessage());
+  readonly canSave = computed(() => this.phase() !== 'main-menu' && this.phase() !== 'game-over');
+
+  readonly debugSnapshot = computed(() => {
+    const p = this.player();
+    return {
+      phase: this.phase(),
+      floor: this.floor(),
+      act: this.act(),
+      gold: this.gold(),
+      hp: `${p.hp}/${p.maxHp}`,
+      block: p.block,
+      energy: `${p.energy}/${p.maxEnergy}`,
+      relics: this.relics().length,
+      combat: this.store.combat() ? 'activo' : 'inactivo',
+    };
+  });
+
+  private readonly _menuOpen = signal(false);
+  private readonly _debugOpen = signal(false);
+  private readonly _debugMessage = signal<string | null>(null);
+
+  toggleMenu(): void {
+    this._menuOpen.update(v => !v);
+    if (!this._menuOpen()) {
+      this._debugOpen.set(false);
+      this._debugMessage.set(null);
+    }
+  }
+
+  closeMenu(): void {
+    this._menuOpen.set(false);
+    this._debugOpen.set(false);
+  }
+
+  toggleDebug(): void {
+    this._debugOpen.update(v => !v);
+  }
+
+  async copyDebugSnapshot(): Promise<void> {
+    const payload = JSON.stringify(this.debugSnapshot(), null, 2);
+    try {
+      await navigator.clipboard.writeText(payload);
+      this._debugMessage.set('Snapshot copiado');
+    } catch {
+      this._debugMessage.set('No se pudo copiar');
+    }
+  }
+
+  async saveNow(): Promise<void> {
+    try {
+      await this.store.saveGame();
+      this._debugMessage.set('Guardado OK');
+    } catch {
+      this._debugMessage.set('Error al guardar');
+    }
+  }
+
+  async debugOpenShop(): Promise<void> {
+    try {
+      await this.store.debugOpenShop();
+      this._debugMessage.set('Debug: tienda abierta');
+    } catch {
+      this._debugMessage.set('Debug: error al abrir tienda');
+    }
+  }
+
+  async debugOpenEvent(): Promise<void> {
+    try {
+      await this.store.debugOpenEvent();
+      this._debugMessage.set('Debug: evento abierto');
+    } catch {
+      this._debugMessage.set('Debug: error al abrir evento');
+    }
+  }
+
+  async debugStartCombat(kind: 'combat' | 'elite' | 'boss'): Promise<void> {
+    try {
+      await this.store.debugStartCombat(kind);
+      this._debugMessage.set(`Debug: combate ${kind} abierto`);
+    } catch {
+      this._debugMessage.set(`Debug: error al abrir ${kind}`);
+    }
+  }
+
+  async debugFinishCombat(): Promise<void> {
+    try {
+      await this.store.debugFinishCombat();
+      this._debugMessage.set('Debug: combate finalizado');
+    } catch {
+      this._debugMessage.set('Debug: error al finalizar combate');
+    }
+  }
+
+  async debugWinCurrentCombat(): Promise<void> {
+    try {
+      await this.store.debugFinishCombat();
+      this._debugMessage.set('Debug: victoria forzada en combate actual');
+    } catch {
+      this._debugMessage.set('Debug: error al forzar victoria');
+    }
+  }
+
+  async debugSuicide(): Promise<void> {
+    try {
+      await this.store.debugSuicide();
+      this._debugMessage.set('Debug: run terminada (suicidio)');
+    } catch {
+      this._debugMessage.set('Debug: error en suicidio');
+    }
+  }
+
+  quitToMainMenu(): void {
+    this.store.closeDeckViewer();
+    this.store.returnToMenu();
+    this.closeMenu();
+  }
 }

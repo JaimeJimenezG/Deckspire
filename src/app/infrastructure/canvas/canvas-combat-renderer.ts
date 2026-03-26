@@ -2,6 +2,7 @@ import { Inject } from '@angular/core';
 import type { Card } from '../../domain/models/card.model';
 import type { CombatState } from '../../domain/models/combat.model';
 import type { EnemyInstance } from '../../domain/models/enemy.model';
+import { STATUS_DEFINITIONS } from '../../domain/models/status-effect.model';
 import type { SpriteAtlasManifest, SpriteFrameRect } from '../../domain/models/sprite-atlas.model';
 import type {
   AnimateDamageOptions,
@@ -20,13 +21,9 @@ import {
 import { AppAssetUrlResolver } from '../app-asset-url.resolver';
 import { ParticleSystem } from './particles';
 import {
-  drawBlockBadge,
   drawEnemyBody,
-  drawEnergyOrbs,
-  drawHpBar,
-  drawIntentIcon,
-  drawStatusEffects,
   fillRoundRect,
+  strokeRoundRect,
   getEnemyColor,
 } from './sprite-helpers';
 
@@ -35,6 +32,11 @@ import {
 // ---------------------------------------------------------------------------
 
 interface EntityPosition {
+  readonly x: number;
+  readonly y: number;
+}
+
+interface PanelOrigin {
   readonly x: number;
   readonly y: number;
 }
@@ -53,6 +55,32 @@ interface ScreenShake {
   elapsed: number;
   readonly duration: number;
 }
+
+const COMBAT_THEME = {
+  bgTop: '#1a1623',
+  bgMid: '#22182b',
+  bgBottom: '#140f18',
+  moonGlow: 'rgba(234, 186, 118, 0.28)',
+  floorMistTop: 'rgba(214, 143, 78, 0.14)',
+  floorMistBottom: 'rgba(28, 20, 22, 0.78)',
+  horizonLine: 'rgba(223, 164, 97, 0.24)',
+  panelTop: 'rgba(78, 63, 49, 0.95)',
+  panelBottom: 'rgba(54, 42, 33, 0.95)',
+  panelBorder: 'rgba(166, 128, 83, 0.78)',
+  textMain: '#eadfcb',
+  textMuted: 'rgba(229, 216, 196, 0.9)',
+  barTrack: 'rgba(17, 13, 10, 0.58)',
+  hpHigh: '#6fbf73',
+  hpMid: '#d8ab58',
+  hpLow: '#ca6957',
+  blockActive: '#4f78a8',
+  blockIdle: 'rgba(228, 214, 192, 0.45)',
+  energyOn: '#e2b252',
+  energyOff: 'rgba(79, 60, 39, 0.38)',
+} as const;
+
+const ENEMY_STATUS_BOX_W = 190;
+const ENEMY_STATUS_BOX_H = 92;
 
 /**
  * Superposición radial blanca que parpadea sobre una entidad al recibir daño.
@@ -485,23 +513,29 @@ export class CanvasCombatRenderer implements CombatRendererPort {
   // ── Pintado de escenas ─────────────────────────────────────────────────────
 
   private paintBackground(ctx: CanvasRenderingContext2D, W: number, H: number): void {
-    // Fondo degradado oscuro
+    // Cielo nocturno con atmosfera mas viva
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#06060f');
-    grad.addColorStop(0.6, '#0d0d1f');
-    grad.addColorStop(1, '#1a1a2e');
+    grad.addColorStop(0, COMBAT_THEME.bgTop);
+    grad.addColorStop(0.5, COMBAT_THEME.bgMid);
+    grad.addColorStop(1, COMBAT_THEME.bgBottom);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
-    // Suelo con textura tenue
+    const moonGrad = ctx.createRadialGradient(W * 0.76, H * 0.16, 0, W * 0.76, H * 0.16, W * 0.2);
+    moonGrad.addColorStop(0, COMBAT_THEME.moonGlow);
+    moonGrad.addColorStop(1, 'rgba(234, 186, 118, 0)');
+    ctx.fillStyle = moonGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Bruma calida en el piso
     const floorGrad = ctx.createLinearGradient(0, H * 0.68, 0, H);
-    floorGrad.addColorStop(0, 'rgba(255,255,255,0.04)');
-    floorGrad.addColorStop(1, 'rgba(255,255,255,0.01)');
+    floorGrad.addColorStop(0, COMBAT_THEME.floorMistTop);
+    floorGrad.addColorStop(1, COMBAT_THEME.floorMistBottom);
     ctx.fillStyle = floorGrad;
     ctx.fillRect(0, H * 0.68, W, H * 0.32);
 
     // Línea divisoria de suelo
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeStyle = COMBAT_THEME.horizonLine;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, H * 0.68);
@@ -520,6 +554,7 @@ export class CanvasCombatRenderer implements CombatRendererPort {
   private paintCombatScene(ctx: CanvasRenderingContext2D, W: number, H: number): void {
     const combat = this.combat!;
     const enemyPositions = this.enemyPositions(combat.enemies.length, W, H);
+    const enemyPanelOrigins = this.layoutEnemyStatusPanels(enemyPositions, W, H);
 
     // ── Enemigos ───────────────────────────────────────────────────────────
     combat.enemies.forEach((enemy, idx) => {
@@ -536,7 +571,16 @@ export class CanvasCombatRenderer implements CombatRendererPort {
           ? 0
           : 1;
 
-      this.paintEnemy(ctx, pos, enemy, idx, tier, color, alpha);
+      this.paintEnemy(
+        ctx,
+        pos,
+        enemyPanelOrigins[idx] ?? { x: pos.x - ENEMY_STATUS_BOX_W / 2, y: pos.y + 64 },
+        enemy,
+        idx,
+        tier,
+        color,
+        alpha,
+      );
     });
 
     // ── Jugador ───────────────────────────────────────────────────────────
@@ -548,15 +592,14 @@ export class CanvasCombatRenderer implements CombatRendererPort {
         ? 0
         : 1;
 
-    this.paintPlayer(ctx, playerPos, combat, playerAlpha);
+    this.paintPlayer(ctx, playerPos, combat, playerAlpha, W, H);
 
-    // ── Indicador de turno ────────────────────────────────────────────────
-    this.paintTurnBadge(ctx, W, H, combat.phase);
   }
 
   private paintEnemy(
     ctx: CanvasRenderingContext2D,
     pos: EntityPosition,
+    panel: PanelOrigin,
     enemy: EnemyInstance,
     enemyIdx: number,
     tier: string,
@@ -564,11 +607,6 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     alpha: number,
   ): void {
     const { x, y } = pos;
-
-    // Intent icon (encima del cuerpo)
-    if (enemy.currentIntent && alpha > 0.1) {
-      drawIntentIcon(ctx, x, y - 78, enemy.currentIntent.display);
-    }
 
     const def = ENEMIES_BY_ID[enemy.definitionId];
     const presetPath = def?.lpcPresetPath;
@@ -614,37 +652,38 @@ export class CanvasCombatRenderer implements CombatRendererPort {
 
     if (alpha < 0.05) return; // no dibujar etiquetas en una entidad casi muerta
 
-    // Barra de HP
-    const barW = tier === 'boss' ? 110 : tier === 'elite' ? 96 : 82;
-    drawHpBar(ctx, x - barW / 2, y + 58, barW, 13, enemy.hp, enemy.maxHp);
+    this.paintEnemyStatusBox(
+      ctx,
+      panel.x,
+      panel.y,
+      def?.name ?? enemy.definitionId,
+      enemy.hp,
+      enemy.maxHp,
+      enemy.block,
+      enemy.statusEffects,
+      enemy.currentIntent?.display.type
+        ? this.formatIntent(enemy.currentIntent.display)
+        : null,
+    );
 
-    // Bloqueo
-    if (enemy.block > 0) {
-      drawBlockBadge(ctx, x + (tier === 'boss' ? 60 : tier === 'elite' ? 52 : 44), y + 10, enemy.block);
-    }
-
-    // Status effects
     if (enemy.statusEffects.length > 0) {
-      const rowW = Math.min(enemy.statusEffects.length, 6) * 20;
-      drawStatusEffects(ctx, x - rowW / 2, y + 76, enemy.statusEffects);
+      this.paintStatusFlags(
+        ctx,
+        panel.x + ENEMY_STATUS_BOX_W / 2,
+        panel.y + ENEMY_STATUS_BOX_H + 4,
+        enemy.statusEffects,
+        220,
+      );
     }
-
-    // Nombre del enemigo (debajo de todo)
-    ctx.save();
-    ctx.globalAlpha = 0.65;
-    ctx.fillStyle = '#fff';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(def?.name ?? enemy.definitionId, x, y + 96);
-    ctx.restore();
   }
 
   private paintPlayer(
     ctx: CanvasRenderingContext2D,
     pos: EntityPosition,
     combat: CombatState,
-      alpha: number,
+    alpha: number,
+    W: number,
+    H: number,
   ): void {
     const { x, y } = pos;
     const { player } = combat;
@@ -680,33 +719,328 @@ export class CanvasCombatRenderer implements CombatRendererPort {
 
     if (alpha < 0.05) return;
 
-    // Barra de HP
-    drawHpBar(ctx, x - 54, y + 58, 108, 14, player.hp, player.maxHp);
+    this.paintPlayerStatusBox(
+      ctx,
+      x,
+      y,
+      player.hp,
+      player.maxHp,
+      player.energy,
+      player.maxEnergy,
+      player.block,
+      player.statusEffects,
+      W,
+      H,
+    );
 
-    // Bloqueo
-    if (player.block > 0) {
-      drawBlockBadge(ctx, x + 58, y + 10, player.block);
-    }
-
-    // Orbes de energía
-    const energyStartX = x - ((player.maxEnergy - 1) * 26) / 2;
-    drawEnergyOrbs(ctx, energyStartX, y + 84, player.energy, player.maxEnergy);
-
-    // Status effects
     if (player.statusEffects.length > 0) {
-      const rowW = Math.min(player.statusEffects.length, 6) * 20;
-      drawStatusEffects(ctx, x - rowW / 2, y + 100, player.statusEffects);
+      this.paintStatusFlags(ctx, x, y + 172, player.statusEffects, 260);
     }
+  }
 
-    // Etiqueta "Jugador"
+  private paintEnemyStatusBox(
+    ctx: CanvasRenderingContext2D,
+    boxX: number,
+    boxY: number,
+    name: string,
+    hp: number,
+    maxHp: number,
+    block: number,
+    statusEffects: ReadonlyArray<EnemyInstance['statusEffects'][number]>,
+    intentText: string | null,
+  ): void {
+    const boxW = ENEMY_STATUS_BOX_W;
+    const boxH = ENEMY_STATUS_BOX_H;
+    const bx = boxX;
+    const by = boxY;
+    const hpPct = maxHp > 0 ? Math.max(0, Math.min(1, hp / maxHp)) : 0;
+
     ctx.save();
-    ctx.globalAlpha = 0.6;
-    ctx.fillStyle = '#aed6f1';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'center';
+    const panelGrad = ctx.createLinearGradient(bx, by, bx, by + boxH);
+    panelGrad.addColorStop(0, COMBAT_THEME.panelTop);
+    panelGrad.addColorStop(1, COMBAT_THEME.panelBottom);
+    ctx.fillStyle = panelGrad;
+    fillRoundRect(ctx, bx, by, boxW, boxH, 10);
+    ctx.strokeStyle = COMBAT_THEME.panelBorder;
+    ctx.lineWidth = 2;
+    strokeRoundRect(ctx, bx, by, boxW, boxH, 10);
+
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('Jugador', x, y + 114);
+    ctx.fillText(name.slice(0, 22), bx + 10, by + 8);
+
+    const barX = bx + 42;
+    const barY = by + 29;
+    const barW = boxW - 52;
+    const barH = 12;
+    ctx.fillStyle = COMBAT_THEME.barTrack;
+    fillRoundRect(ctx, barX, barY, barW, barH, 6);
+    const hpColor = hpPct > 0.5 ? COMBAT_THEME.hpHigh : hpPct > 0.25 ? COMBAT_THEME.hpMid : COMBAT_THEME.hpLow;
+    ctx.fillStyle = hpColor;
+    fillRoundRect(ctx, barX, barY, barW * hpPct, barH, 6);
+
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('HP', bx + 10, by + 30);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${Math.max(0, hp)}/${Math.max(1, maxHp)}`, bx + boxW - 8, by + 44);
+
+    ctx.textAlign = 'left';
+    ctx.fillText('ARM', bx + 10, by + 52);
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = block > 0 ? COMBAT_THEME.blockActive : COMBAT_THEME.blockIdle;
+    ctx.fillText(`⬡ ${Math.max(0, block)}`, bx + 42, by + 51);
+
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.fillText('INT', bx + 10, by + 70);
+    ctx.fillStyle = COMBAT_THEME.textMuted;
+    this.drawTrimmedText(ctx, intentText ?? 'Sin accion', bx + 42, by + 70, boxW - 50);
+
     ctx.restore();
+  }
+
+  private layoutEnemyStatusPanels(
+    enemyPositions: readonly EntityPosition[],
+    W: number,
+    H: number,
+  ): PanelOrigin[] {
+    const placed: Array<{ x: number; y: number; w: number; h: number }> = [];
+    const gap = 8;
+    const margin = 8;
+    const panelW = ENEMY_STATUS_BOX_W;
+    const panelH = ENEMY_STATUS_BOX_H;
+
+    return enemyPositions.map((pos) => {
+      let x = Math.max(margin, Math.min(W - margin - panelW, pos.x - panelW / 2));
+      let y = pos.y + 64;
+      y = Math.max(margin, Math.min(H - margin - panelH, y));
+
+      let guard = 0;
+      while (guard < 80) {
+        const overlaps = placed.some((p) =>
+          x < p.x + p.w + gap &&
+          x + panelW + gap > p.x &&
+          y < p.y + p.h + gap &&
+          y + panelH + gap > p.y,
+        );
+        if (!overlaps) break;
+
+        y += panelH + gap;
+        if (y + panelH > H - margin) {
+          y = Math.max(margin, pos.y - panelH - 14);
+          x = Math.max(margin, x - (panelW * 0.55));
+        }
+        x = Math.max(margin, Math.min(W - margin - panelW, x));
+        guard++;
+      }
+
+      placed.push({ x, y, w: panelW, h: panelH });
+      return { x, y };
+    });
+  }
+
+  private paintPlayerStatusBox(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    hp: number,
+    maxHp: number,
+    energy: number,
+    maxEnergy: number,
+    block: number,
+    statusEffects: ReadonlyArray<CombatState['player']['statusEffects'][number]>,
+    W: number,
+    H: number,
+  ): void {
+    const boxW = 236;
+    const boxH = 98;
+    const margin = 8;
+    const bx = Math.max(margin, Math.min(W - margin - boxW, x - boxW * 0.5));
+    const by = Math.max(margin, Math.min(H - margin - boxH, y + 66));
+    const hpPct = maxHp > 0 ? Math.max(0, Math.min(1, hp / maxHp)) : 0;
+
+    ctx.save();
+    const panelGrad = ctx.createLinearGradient(bx, by, bx, by + boxH);
+    panelGrad.addColorStop(0, COMBAT_THEME.panelTop);
+    panelGrad.addColorStop(1, COMBAT_THEME.panelBottom);
+    ctx.fillStyle = panelGrad;
+    fillRoundRect(ctx, bx, by, boxW, boxH, 11);
+    ctx.strokeStyle = COMBAT_THEME.panelBorder;
+    ctx.lineWidth = 2;
+    strokeRoundRect(ctx, bx, by, boxW, boxH, 11);
+
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('Jugador', bx + 10, by + 9);
+
+    const hpBarX = bx + 46;
+    const hpBarY = by + 32;
+    const hpBarW = boxW - 58;
+    const hpBarH = 12;
+    ctx.fillStyle = COMBAT_THEME.barTrack;
+    fillRoundRect(ctx, hpBarX, hpBarY, hpBarW, hpBarH, 6);
+    const hpColor = hpPct > 0.5 ? COMBAT_THEME.hpHigh : hpPct > 0.25 ? COMBAT_THEME.hpMid : COMBAT_THEME.hpLow;
+    ctx.fillStyle = hpColor;
+    fillRoundRect(ctx, hpBarX, hpBarY, hpBarW * hpPct, hpBarH, 6);
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('HP', bx + 12, hpBarY + 1);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${Math.max(0, hp)}/${Math.max(1, maxHp)}`, bx + boxW - 8, hpBarY + 14);
+
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.fillText('ARM', bx + 12, by + 56);
+    ctx.fillStyle = block > 0 ? COMBAT_THEME.blockActive : COMBAT_THEME.blockIdle;
+    ctx.fillText(`⬡ ${Math.max(0, block)}`, bx + 46, by + 56);
+
+    ctx.fillStyle = COMBAT_THEME.textMain;
+    ctx.fillText('ENE', bx + 12, by + 74);
+    this.paintEnergyBolts(ctx, bx + 46, by + 67, energy, maxEnergy);
+
+    ctx.restore();
+  }
+
+  private paintEnergyBolts(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    energy: number,
+    maxEnergy: number,
+  ): void {
+    const count = Math.max(0, Math.min(10, maxEnergy));
+    for (let i = 0; i < count; i++) {
+      const filled = i < Math.max(0, energy);
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = filled ? COMBAT_THEME.energyOn : COMBAT_THEME.energyOff;
+      ctx.fillText('⚡', x + i * 16, y);
+    }
+  }
+
+  private paintStatusFlags(
+    ctx: CanvasRenderingContext2D,
+    centerX: number,
+    startY: number,
+    statusEffects: ReadonlyArray<{ type: string; stacks: number }>,
+    maxWidth: number,
+  ): void {
+    if (statusEffects.length === 0) return;
+
+    const flagH = 16;
+    const triH = 5;
+    const gapX = 6;
+    const gapY = 8;
+    const flags = statusEffects.map((s) => ({
+      label: `${this.statusShortLabel(s.type)} ${s.stacks}`,
+      type: s.type,
+    }));
+
+    ctx.save();
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textBaseline = 'middle';
+
+    let row: Array<{ text: string; w: number; type: string }> = [];
+    let rowWidth = 0;
+    const rows: Array<Array<{ text: string; w: number; type: string }>> = [];
+    for (const f of flags) {
+      const w = Math.max(40, Math.ceil(ctx.measureText(f.label).width) + 14);
+      const candidate = rowWidth === 0 ? w : rowWidth + gapX + w;
+      if (candidate > maxWidth && row.length > 0) {
+        rows.push(row);
+        row = [{ text: f.label, w, type: f.type }];
+        rowWidth = w;
+      } else {
+        row.push({ text: f.label, w, type: f.type });
+        rowWidth = candidate;
+      }
+    }
+    if (row.length > 0) rows.push(row);
+
+    rows.forEach((r, ri) => {
+      const totalW = r.reduce((acc, it) => acc + it.w, 0) + gapX * Math.max(0, r.length - 1);
+      let x = centerX - totalW / 2;
+      const y = startY + ri * (flagH + triH + gapY);
+
+      for (const item of r) {
+        const bg = this.statusFlagColor(item.type);
+        ctx.fillStyle = bg;
+        fillRoundRect(ctx, x, y, item.w, flagH, 5);
+        ctx.beginPath();
+        ctx.moveTo(x + item.w / 2 - 5, y + flagH);
+        ctx.lineTo(x + item.w / 2 + 5, y + flagH);
+        ctx.lineTo(x + item.w / 2, y + flagH + triH);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(20, 15, 12, 0.35)';
+        ctx.lineWidth = 1;
+        strokeRoundRect(ctx, x, y, item.w, flagH, 5);
+
+        ctx.fillStyle = 'rgba(26, 20, 14, 0.95)';
+        ctx.textAlign = 'center';
+        ctx.fillText(item.text, x + item.w / 2, y + flagH / 2 + 0.5);
+        x += item.w + gapX;
+      }
+    });
+
+    ctx.restore();
+  }
+
+  private formatIntent(display: NonNullable<EnemyInstance['currentIntent']>['display']): string {
+    switch (display.type) {
+      case 'attack': {
+        const dmg = display.value ?? 0;
+        const times = display.times && display.times > 1 ? `x${display.times}` : '';
+        return `Ataque ${dmg}${times ? ` ${times}` : ''}`;
+      }
+      case 'defend':
+        return 'Defensa';
+      case 'buff':
+        return 'Buff';
+      case 'debuff':
+        return 'Debuff';
+      case 'attack-debuff':
+        return 'Ataque + Debuff';
+      default:
+        return 'Desconocido';
+    }
+  }
+
+  private statusShortLabel(type: string): string {
+    const def = STATUS_DEFINITIONS[type as keyof typeof STATUS_DEFINITIONS];
+    const name = def?.name ?? type;
+    if (name.length <= 4) return name.toUpperCase();
+    return name.slice(0, 4).toUpperCase();
+  }
+
+  private statusFlagColor(type: string): string {
+    const def = STATUS_DEFINITIONS[type as keyof typeof STATUS_DEFINITIONS];
+    if (!def) return '#c9b089';
+    if (def.category === 'buff') return '#9dcf9a';
+    if (def.category === 'debuff') return '#d9a19a';
+    return '#c9b089';
+  }
+
+  private drawTrimmedText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+  ): void {
+    let out = text;
+    while (out.length > 0 && ctx.measureText(out).width > maxWidth) {
+      out = out.slice(0, -1);
+    }
+    ctx.fillText(out.length < text.length ? `${out}…` : out, x, y);
   }
 
   /** Placeholder mínimo mientras compone el LPC de un enemigo (sin silueta vectorial). */
@@ -914,21 +1248,25 @@ export class CanvasCombatRenderer implements CombatRendererPort {
    */
   private enemyPositions(count: number, W: number, H: number): EntityPosition[] {
     if (count === 0) return [];
+    const maxCols = 3;
+    const colCount = Math.min(count, maxCols);
+    const xGap = Math.max(64, Math.min(96, W * 0.09));
+    const yGap = Math.max(70, Math.min(100, H * 0.12));
+    const baseX = W * 0.82;
+    const baseY = H * 0.27;
 
-    const centerY = H * 0.36;
-    const startX = W * 0.42;
-    const endX = W * 0.9;
-
-    if (count === 1) return [{ x: (startX + endX) / 2, y: centerY }];
-
-    return Array.from({ length: count }, (_, i) => ({
-      x: startX + (endX - startX) * (i / (count - 1)),
-      y: centerY,
-    }));
+    return Array.from({ length: count }, (_, i) => {
+      const col = i % maxCols;
+      const row = Math.floor(i / maxCols);
+      return {
+        x: baseX - (colCount - 1 - col) * xGap - row * (xGap * 0.28),
+        y: baseY + row * yGap + (col === 1 ? 6 : 0),
+      };
+    });
   }
 
   private playerPosition(W: number, H: number): EntityPosition {
-    return { x: W * 0.17, y: H * 0.4 };
+    return { x: W * 0.2, y: H * 0.7 };
   }
 
   /**

@@ -206,10 +206,12 @@ export class HandComponent implements OnDestroy {
   // ── Private drag bookkeeping ──────────────────────────────────────────────
 
   private dragStartY = 0;
+  private dragStartX = 0;
   private playThresholdY = 0;
 
   private readonly boundPointerMove = this.onPointerMove.bind(this);
   private readonly boundPointerUp = this.onPointerUp.bind(this);
+  private readonly boundPointerCancel = this.onPointerCancel.bind(this);
 
   ngOnDestroy(): void {
     this.removeDocListeners();
@@ -274,9 +276,10 @@ export class HandComponent implements OnDestroy {
     if (!this.isPlayable(card)) return;
 
     event.preventDefault();
-    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    (event.currentTarget as HTMLElement | null)?.setPointerCapture?.(event.pointerId);
 
     this.draggingIndex.set(index);
+    this.dragStartX = event.clientX;
     this.dragStartY = event.clientY;
     this.dragPos.set({ x: event.clientX, y: event.clientY });
     this.isDragActive.set(false);
@@ -285,13 +288,16 @@ export class HandComponent implements OnDestroy {
 
     document.addEventListener('pointermove', this.boundPointerMove);
     document.addEventListener('pointerup', this.boundPointerUp);
+    document.addEventListener('pointercancel', this.boundPointerCancel);
   }
 
   private onPointerMove(event: PointerEvent): void {
+    if (this.draggingIndex() === -1) return;
+    event.preventDefault();
     this.dragPos.set({ x: event.clientX, y: event.clientY });
 
     const totalMovement =
-      Math.abs(event.clientX - (this.dragPos()?.x ?? event.clientX)) +
+      Math.abs(event.clientX - this.dragStartX) +
       Math.abs(event.clientY - this.dragStartY);
 
     if (totalMovement > DRAG_THRESHOLD_PX) {
@@ -329,6 +335,10 @@ export class HandComponent implements OnDestroy {
       this.cardPlayed.emit({ card, targetIdx: targetedZone ?? -1 });
     }
 
+    this.resetDragState();
+  }
+
+  private onPointerCancel(): void {
     this.resetDragState();
   }
 
@@ -371,5 +381,6 @@ export class HandComponent implements OnDestroy {
   private removeDocListeners(): void {
     document.removeEventListener('pointermove', this.boundPointerMove);
     document.removeEventListener('pointerup', this.boundPointerUp);
+    document.removeEventListener('pointercancel', this.boundPointerCancel);
   }
 }

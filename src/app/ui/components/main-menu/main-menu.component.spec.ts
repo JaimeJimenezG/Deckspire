@@ -76,7 +76,7 @@ describe('MainMenuComponent', () => {
     it('debe mostrar el título del juego', async () => {
       const { fixture } = await createComponent();
       const title = fixture.debugElement.query(By.css('.menu__title'));
-      expect(title.nativeElement.textContent).toContain('Dungeon');
+      expect(title.nativeElement.textContent).toContain('Deck');
     });
 
     it('debe mostrar el botón "Nueva partida"', async () => {

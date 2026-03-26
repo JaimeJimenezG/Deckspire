@@ -1,10 +1,9 @@
 <section class="shop">
   <header class="shop__header">
     <h2 class="shop__title">Tienda</h2>
-    <div class="shop__gold">
-      <span class="shop__gold-icon" aria-hidden="true">💰</span>
-      <span class="shop__gold-amount" aria-label="Oro disponible">{{ gold() }}</span>
-    </div>
+    <button class="shop__deck-btn" (click)="openDeckViewer()" aria-label="Ver mazo">
+      🃏 Mazo
+    </button>
   </header>
 
   @if (shop()) {
@@ -62,6 +61,7 @@
                 [attr.data-tooltip]="relicTooltip(item.relicId ?? '')"
               >
                 <span class="shop__relic-name">{{ formatRelicName(item.relicId ?? '') }}</span>
+                <span class="shop__relic-description">{{ relicInlineDescription(item.relicId ?? '') }}</span>
               </span>
               @if (item.sold) {
                 <span class="shop__relic-badge shop__relic-badge--sold">Vendida</span>

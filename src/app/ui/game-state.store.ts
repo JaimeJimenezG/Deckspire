@@ -3,10 +3,14 @@ import type { Card } from '../domain/models/card.model';
 import type { EnemyTier } from '../domain/models/enemy.model';
 import type { GameOutcome, GameState, GameStats } from '../domain/models/game-state.model';
 import { ALL_CARDS } from '../domain/data/cards.data';
+import { ALL_EVENTS } from '../domain/data/events.data';
+import { ALL_RELIC_IDS } from '../domain/data/relics.data';
+import type { GameMap, MapNode, NodeType } from '../domain/models/map.model';
 import { RewardGenerator } from '../domain/services/reward-generator';
 import { RelicEngine } from '../domain/services/relic-engine';
 import { DeckManager } from '../domain/services/deck-manager';
 import { SeededRandom } from '../domain/services/seeded-random';
+import { ShopManager } from '../domain/services/shop-manager';
 import {
   NEW_GAME_USE_CASE,
   START_COMBAT_USE_CASE,
@@ -24,6 +28,7 @@ import {
 
 /** Non-basic cards eligible for post-combat rewards. */
 const REWARD_CARD_POOL: readonly Card[] = ALL_CARDS.filter(c => c.rarity !== 'basic');
+const DEBUG_BOSS_ID = 'the-guardian';
 
 // ---------------------------------------------------------------------------
 // Estado inicial (antes de cargar o iniciar una run)
@@ -88,6 +93,7 @@ export class GameStateStore {
   private readonly loadGameUC = inject(LOAD_GAME_USE_CASE);
   private readonly resolveEventUC = inject(RESOLVE_EVENT_USE_CASE);
   private readonly gameRepository = inject(GAME_REPOSITORY);
+  private readonly shopManager = new ShopManager();
 
   // ── Signal central ──────────────────────────────────────────────────────
   private readonly _state = signal<GameState>(INITIAL_STATE);
@@ -366,5 +372,98 @@ export class GameStateStore {
   /** Obtiene las estadísticas acumuladas entre runs directamente del repositorio. */
   async getStats(): Promise<GameStats> {
     return this.gameRepository.getStats();
+  }
+
+  // ── Debug actions ──────────────────────────────────────────────────────────
+
+  async debugOpenShop(): Promise<void> {
+    const state = await this.ensureDebugState();
+    const rng = new SeededRandom(state.seed + state.floor * 997 + 17);
+    const shop = this.shopManager.generateOfferings(ALL_CARDS, ALL_RELIC_IDS, state.relics, rng);
+    this._state.set({
+      ...state,
+      phase: 'shop',
+      combat: null,
+      event: null,
+      reward: null,
+      shop,
+    });
+  }
+
+  async debugOpenEvent(): Promise<void> {
+    const state = await this.ensureDebugState();
+    const rng = new SeededRandom(state.seed + state.floor * 131 + 7);
+    const event = ALL_EVENTS[rng.nextInt(0, ALL_EVENTS.length - 1)];
+    this._state.set({
+      ...state,
+      phase: 'event',
+      combat: null,
+      shop: null,
+      reward: null,
+      event: { event, chosenId: null },
+    });
+  }
+
+  async debugStartCombat(nodeType: Extract<NodeType, 'combat' | 'elite' | 'boss'>): Promise<void> {
+    const state = await this.ensureDebugState();
+    const map = this.buildDebugMap(state, nodeType);
+    const prepared: GameState = {
+      ...state,
+      map,
+      phase: 'map',
+      shop: null,
+      reward: null,
+      event: null,
+      combat: null,
+      floor: 1,
+    };
+    const newState = await this.startCombatUC.execute(prepared);
+    this._state.set(newState);
+  }
+
+  async debugFinishCombat(): Promise<void> {
+    const state = this._state();
+    if (state.phase !== 'combat' || !state.combat) return;
+    const nodeType = state.map?.currentNodeId ? state.map.nodes.get(state.map.currentNodeId)?.type : null;
+    if (nodeType === 'boss') {
+      await this.declareGameOver('victory');
+      return;
+    }
+    this.collectCombatReward();
+  }
+
+  async debugSuicide(): Promise<void> {
+    const state = this._state();
+    if (state.phase === 'main-menu') return;
+    await this.declareGameOver('defeat');
+  }
+
+  private async ensureDebugState(): Promise<GameState> {
+    const state = this._state();
+    if (state.phase === 'main-menu' || !state.map) {
+      await this.newGame();
+      return this._state();
+    }
+    return state;
+  }
+
+  private buildDebugMap(
+    state: GameState,
+    nodeType: Extract<NodeType, 'combat' | 'elite' | 'boss'>,
+  ): GameMap {
+    const node: MapNode = {
+      id: 'debug-node',
+      row: 0,
+      col: 0,
+      type: nodeType,
+      connections: [],
+      visited: false,
+    };
+    return {
+      nodes: new Map<string, MapNode>([[node.id, node]]),
+      currentNodeId: node.id,
+      act: state.act,
+      bossId: state.map?.bossId ?? DEBUG_BOSS_ID,
+    };
   }
 }

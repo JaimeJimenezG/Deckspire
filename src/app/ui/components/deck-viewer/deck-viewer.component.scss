@@ -1,16 +1,16 @@
 // Borde sutil para separadores internos (no existe como CSS var global)
-$border-dim: rgba(255, 255, 255, 0.1);
+$border-dim: rgba(219, 173, 106, 0.22);
 
 // ── Backdrop ────────────────────────────────────────────────────────────────
 .deck-viewer__backdrop {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(6, 5, 8, 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(5px);
   animation: backdrop-in 0.18s ease;
 }
 
@@ -26,10 +26,15 @@ $border-dim: rgba(255, 255, 255, 0.1);
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(160deg, var(--bg-medium), var(--bg-darkest));
+  background:
+    radial-gradient(700px 380px at 72% 14%, rgba(184, 105, 51, 0.14), transparent 72%),
+    radial-gradient(580px 320px at 18% 92%, rgba(88, 106, 164, 0.12), transparent 74%),
+    linear-gradient(170deg, rgba(24, 19, 23, 0.97), rgba(13, 11, 15, 0.98));
   border: 1px solid $border-dim;
   border-radius: 12px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1px rgba(237, 193, 127, 0.08);
   overflow: visible;
   animation: panel-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -53,7 +58,7 @@ $border-dim: rgba(255, 255, 255, 0.1);
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: var(--text-gold);
+  color: #f2deb9;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   display: flex;
@@ -69,18 +74,18 @@ $border-dim: rgba(255, 255, 255, 0.1);
   height: 24px;
   padding: 0 8px;
   border-radius: 12px;
-  background: rgba(255, 215, 64, 0.15);
-  border: 1px solid rgba(255, 215, 64, 0.35);
+  background: rgba(212, 165, 116, 0.18);
+  border: 1px solid rgba(212, 165, 116, 0.42);
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-gold);
+  color: #efc685;
 }
 
 .deck-viewer__close {
   background: none;
   border: 1px solid $border-dim;
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: #bca78d;
   cursor: pointer;
   font-size: 14px;
   padding: 6px 10px;
@@ -88,9 +93,9 @@ $border-dim: rgba(255, 255, 255, 0.1);
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: var(--text-primary);
-    border-color: var(--text-secondary);
+    background: rgba(212, 165, 116, 0.12);
+    color: #ebdfc8;
+    border-color: rgba(226, 179, 115, 0.5);
   }
 
   &:focus-visible {
@@ -109,7 +114,7 @@ $border-dim: rgba(255, 255, 255, 0.1);
   margin: 0 0 8px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-gold);
+  color: #e8c48d;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -125,9 +130,9 @@ $border-dim: rgba(255, 255, 255, 0.1);
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(46, 184, 114, 0.3);
-  background: rgba(46, 184, 114, 0.12);
-  color: #2eb872;
+  border: 1px solid rgba(214, 164, 102, 0.38);
+  background: rgba(92, 64, 34, 0.38);
+  color: #f0cf99;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -150,11 +155,11 @@ $border-dim: rgba(255, 255, 255, 0.1);
   top: calc(100% + 10px);
   transform: translateX(-50%);
   z-index: 20;
-  background: rgba(0, 0, 0, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 10, 13, 0.94);
+  border: 1px solid rgba(225, 171, 100, 0.4);
   border-radius: 10px;
   padding: 10px 12px;
-  color: var(--text-primary);
+  color: #e9deca;
   font-size: 12px;
   line-height: 1.25;
   white-space: pre-line;
@@ -190,7 +195,7 @@ $border-dim: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   border: 1px solid $border-dim;
   background: transparent;
-  color: var(--text-secondary);
+  color: #bca78d;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -198,8 +203,8 @@ $border-dim: rgba(255, 255, 255, 0.1);
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-primary);
+    background: rgba(212, 165, 116, 0.1);
+    color: #ebdfc8;
   }
 
   &:focus-visible {
@@ -213,28 +218,28 @@ $border-dim: rgba(255, 255, 255, 0.1);
     border-color: currentColor;
 
     &.deck-viewer__filter-btn--attack {
-      background: rgba(200, 75, 49, 0.35);
-      border-color: var(--color-attack);
-      color: var(--color-attack);
+      background: rgba(200, 75, 49, 0.28);
+      border-color: rgba(224, 123, 101, 0.85);
+      color: #f0b2a4;
     }
 
     &.deck-viewer__filter-btn--skill {
-      background: rgba(107, 127, 215, 0.25);
-      border-color: var(--color-skill);
-      color: var(--color-skill);
+      background: rgba(107, 127, 215, 0.24);
+      border-color: rgba(149, 164, 228, 0.78);
+      color: #bcc7f6;
     }
 
     &.deck-viewer__filter-btn--power {
-      background: rgba(46, 184, 114, 0.25);
-      border-color: var(--color-power);
-      color: var(--color-power);
+      background: rgba(46, 184, 114, 0.22);
+      border-color: rgba(124, 214, 164, 0.74);
+      color: #a5e5c3;
     }
 
     // Botón "Todas" activo: dorado
     &:not(.deck-viewer__filter-btn--attack):not(.deck-viewer__filter-btn--skill):not(.deck-viewer__filter-btn--power) {
-      background: rgba(255, 215, 64, 0.15);
-      border-color: var(--text-gold);
-      color: var(--text-gold);
+      background: rgba(212, 165, 116, 0.16);
+      border-color: rgba(226, 179, 115, 0.78);
+      color: #efc685;
     }
   }
 }
@@ -247,17 +252,19 @@ $border-dim: rgba(255, 255, 255, 0.1);
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   font-size: 10px;
   font-weight: 700;
 }
 
 // ── Cuadrícula de cartas ─────────────────────────────────────────────────────
 .deck-viewer__grid {
+  overflow: auto;
   flex: 1;
   padding: 20px 24px 24px;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
   align-content: flex-start;
 
@@ -271,11 +278,11 @@ $border-dim: rgba(255, 255, 255, 0.1);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(212, 165, 116, 0.22);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(212, 165, 116, 0.34);
     }
   }
 }
@@ -287,7 +294,7 @@ $border-dim: rgba(255, 255, 255, 0.1);
 .deck-viewer__empty {
   width: 100%;
   text-align: center;
-  color: var(--text-secondary);
+  color: #bca78d;
   font-size: 14px;
   padding: 32px 0;
   margin: 0;

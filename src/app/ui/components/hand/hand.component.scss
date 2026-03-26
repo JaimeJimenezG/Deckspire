@@ -70,6 +70,7 @@ $card-height: 180px;
     z-index 0s,
     filter 0.15s ease;
   pointer-events: all;
+  touch-action: none; // evita scroll/zoom del navegador durante drag táctil
   cursor: grab;
 
   // Hidden while a drag ghost is shown for this slot

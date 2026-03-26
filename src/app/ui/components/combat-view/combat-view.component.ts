@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import type { Card } from '../../../domain/models/card.model';
 import type { EnemyInstance } from '../../../domain/models/enemy.model';
+import type { IntentAction } from '../../../domain/models/enemy.model';
+import { STATUS_DEFINITIONS } from '../../../domain/models/status-effect.model';
 import { GameStateStore } from '../../game-state.store';
 import { HandComponent, type EnemyDropZone } from '../hand/hand.component';
 import { COMBAT_RENDERER } from '../../di/providers';
@@ -23,6 +25,14 @@ import { COMBAT_RENDERER } from '../../di/providers';
 interface CanvasLifecycle {
   attachCanvas(canvas: HTMLCanvasElement): void;
   detachCanvas(): void;
+}
+
+interface EnemyIntentTooltip {
+  readonly enemyName: string;
+  readonly summary: string;
+  readonly details: readonly string[];
+  readonly x: number;
+  readonly y: number;
 }
 
 /**
@@ -40,18 +50,28 @@ function cardNeedsTarget(card: Card): boolean {
 }
 
 /**
- * Posición X (porcentaje del ancho del canvas) de un enemigo.
- * Replica la fórmula de CanvasCombatRenderer.enemyPositions.
+ * Posición del enemigo en porcentaje del canvas.
+ * Debe mantenerse alineada con CanvasCombatRenderer.enemyPositions.
  */
-function enemyXPercent(i: number, count: number): number {
-  const startPct = 42;
-  const endPct   = 90;
-  if (count <= 1) return (startPct + endPct) / 2;
-  return startPct + (endPct - startPct) * (i / (count - 1));
+function enemySlotPercent(i: number, count: number): { xPct: number; yPct: number } {
+  const maxCols = 3;
+  const colCount = Math.min(count, maxCols);
+  const col = i % maxCols;
+  const row = Math.floor(i / maxCols);
+
+  const baseXPct = 82;
+  const baseYPct = 27;
+  const xGapPct = 9;
+  const yGapPct = 12;
+  const rowShiftXPct = 2.8;
+
+  const xPct = baseXPct - (colCount - 1 - col) * xGapPct - row * rowShiftXPct;
+  const yPct = baseYPct + row * yGapPct + (col === 1 ? 1 : 0);
+  return { xPct, yPct };
 }
 
-/** Posición Y (porcentaje de alto del canvas) de todos los enemigos. */
-const ENEMY_Y_PERCENT = 36;
+const PLAYER_X_PERCENT = 20;
+const PLAYER_Y_PERCENT = 70;
 
 /**
  * Vista de combate principal.
@@ -126,12 +146,15 @@ export class CombatViewComponent implements OnDestroy {
   readonly enemyTargetSlots = computed(() => {
     const enemies = this.enemies();
     const count   = enemies.length;
-    return enemies.map((enemy, i) => ({
-      enemy,
-      index: i,
-      xPct: enemyXPercent(i, count),
-      yPct: ENEMY_Y_PERCENT,
-    }));
+    return enemies.map((enemy, i) => {
+      const slot = enemySlotPercent(i, count);
+      return {
+        enemy,
+        index: i,
+        xPct: slot.xPct,
+        yPct: slot.yPct,
+      };
+    });
   });
 
   /**
@@ -162,6 +185,7 @@ export class CombatViewComponent implements OnDestroy {
    * null = sin targeting activo por drag.
    */
   readonly hoveredEnemyDuringDrag = signal<number | null>(null);
+  readonly hoveredEnemyIntentTooltip = signal<EnemyIntentTooltip | null>(null);
 
   // ── Ciclo de vida del canvas ──────────────────────────────────────────────
 
@@ -263,6 +287,90 @@ export class CombatViewComponent implements OnDestroy {
     this.hoveredEnemyDuringDrag.set(idx);
   }
 
+  onCanvasMouseMove(event: MouseEvent): void {
+    const canvas = this.canvasRef()?.nativeElement;
+    if (!canvas) return;
+
+    const enemies = this.enemies();
+    const player = this.player();
+
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const minSide = Math.min(rect.width, rect.height);
+    const hitRadius = Math.max(42, Math.min(90, minSide * 0.12));
+
+    let hoveredIdx: number | null = null;
+    let bestDist = Number.POSITIVE_INFINITY;
+
+    const slots = this.enemyTargetSlots();
+    for (const slot of slots) {
+      if (slot.enemy.hp <= 0) continue;
+      const ex = rect.width * (slot.xPct / 100);
+      const ey = rect.height * (slot.yPct / 100);
+      const dx = x - ex;
+      const dy = y - ey;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= hitRadius && dist < bestDist) {
+        hoveredIdx = slot.index;
+        bestDist = dist;
+      }
+    }
+
+    if (hoveredIdx !== null) {
+      const enemy = enemies[hoveredIdx];
+      if (!enemy) {
+        this.hoveredEnemyIntentTooltip.set(null);
+        return;
+      }
+
+      const { summary, details } = this.describeEnemyIntent(enemy);
+      this.hoveredEnemyIntentTooltip.set({
+        enemyName: enemy.definitionId,
+        summary,
+        details: [
+          `Vida: ${enemy.hp}/${enemy.maxHp}`,
+          `Armadura: ${enemy.block}`,
+          `Estados: ${this.describeStatuses(enemy.statusEffects)}`,
+          ...details,
+        ],
+        x: Math.min(rect.width - 260, x + 14),
+        y: Math.max(8, y - 12),
+      });
+      return;
+    }
+
+    if (!player) {
+      this.hoveredEnemyIntentTooltip.set(null);
+      return;
+    }
+
+    const px = rect.width * (PLAYER_X_PERCENT / 100);
+    const py = rect.height * (PLAYER_Y_PERCENT / 100);
+    const playerDist = Math.hypot(x - px, y - py);
+    if (playerDist > hitRadius) {
+      this.hoveredEnemyIntentTooltip.set(null);
+      return;
+    }
+
+    this.hoveredEnemyIntentTooltip.set({
+      enemyName: 'Jugador',
+      summary: 'Estado completo del personaje.',
+      details: [
+        `Vida: ${player.hp}/${player.maxHp}`,
+        `Armadura: ${player.block}`,
+        `Energía: ${player.energy}/${player.maxEnergy}`,
+        `Estados: ${this.describeStatuses(player.statusEffects)}`,
+      ],
+      x: Math.min(rect.width - 260, x + 14),
+      y: Math.max(8, y - 12),
+    });
+  }
+
+  onCanvasMouseLeave(): void {
+    this.hoveredEnemyIntentTooltip.set(null);
+  }
+
   /** Llamado cuando el jugador hace clic sobre un enemigo en modo targeting. */
   onTargetSelected(enemyIdx: number): void {
     const card = this.pendingCard();
@@ -298,5 +406,64 @@ export class CombatViewComponent implements OnDestroy {
         this.store.collectCombatReward();
       }
     }
+  }
+
+  private describeEnemyIntent(enemy: EnemyInstance): { summary: string; details: string[] } {
+    const intent = enemy.currentIntent;
+    if (!intent) {
+      return { summary: 'Sin intención visible', details: ['Este enemigo no mostró su próxima acción.'] };
+    }
+
+    const details: string[] = intent.actions.map((action) => this.describeIntentAction(action));
+    const summary = this.describeIntentSummary(intent.actions);
+    return { summary, details };
+  }
+
+  private describeIntentSummary(actions: readonly IntentAction[]): string {
+    const hasDamage = actions.some((a) => a.type === 'damage');
+    const hasBlock = actions.some((a) => a.type === 'block');
+    const hasBuff = actions.some((a) => a.type === 'buff');
+    const hasDebuff = actions.some((a) => a.type === 'debuff-player');
+
+    if (hasDamage && hasDebuff) return 'Atacará y aplicará un debilitamiento.';
+    if (hasDamage && hasBlock) return 'Atacará y ganará bloqueo.';
+    if (hasDamage) return 'Atacará en su próximo turno.';
+    if (hasBuff) return 'Se potenciará en su próximo turno.';
+    if (hasDebuff) return 'Aplicará un debilitamiento al jugador.';
+    if (hasBlock) return 'Se defenderá ganando bloqueo.';
+    return 'Acción especial en el próximo turno.';
+  }
+
+  private describeIntentAction(action: IntentAction): string {
+    switch (action.type) {
+      case 'damage': {
+        const times = action.times && action.times > 1 ? ` x${action.times}` : '';
+        return `Daño: ${action.value}${times}`;
+      }
+      case 'block':
+        return `Bloqueo: +${action.value}`;
+      case 'buff':
+        return `Buff: ${action.status} +${action.stacks}`;
+      case 'debuff-player':
+        return `Debuff: ${action.status} +${action.stacks}`;
+      case 'heal':
+        return `Curación: +${action.value} HP`;
+      case 'summon':
+        return `Invoca: ${action.enemyId} x${action.count}`;
+      case 'split':
+        return 'Se dividirá en nuevas entidades';
+      default:
+        return 'Acción no especificada';
+    }
+  }
+
+  private describeStatuses(statusEffects: readonly { type: string; stacks: number }[]): string {
+    if (statusEffects.length === 0) return 'Ninguno';
+    return statusEffects
+      .map((s) => {
+        const def = STATUS_DEFINITIONS[s.type as keyof typeof STATUS_DEFINITIONS];
+        return `${def?.name ?? s.type}(${s.stacks})`;
+      })
+      .join(', ');
   }
 }

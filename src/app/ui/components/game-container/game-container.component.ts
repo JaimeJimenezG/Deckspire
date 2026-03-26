@@ -62,7 +62,7 @@ export class GameContainerComponent {
   /** El botón "Ver Mazo" se muestra en todas las fases excepto menú principal y game-over. */
   readonly showDeckButton = computed(() => {
     const p = this.phase();
-    return p !== 'main-menu' && p !== 'game-over';
+    return p !== 'main-menu' && p !== 'game-over' && p !== 'shop';
   });
 
   openDeckViewer(): void {

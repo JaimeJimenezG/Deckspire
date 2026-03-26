@@ -1,4 +1,35 @@
-<div class="map-container" #scrollContainer>
+<div class="map-shell">
+  <div class="map-shell__atmosphere" aria-hidden="true"></div>
+  <div class="map-shell__vignette" aria-hidden="true"></div>
+
+  <header class="map-shell__header" aria-label="Cabecera del mapa">
+    <p class="map-shell__chapter">Acto en curso</p>
+    <h2 class="map-shell__title">Ruta de la Torre</h2>
+  </header>
+
+  <button
+    class="map-zoom-btn map-zoom-btn--minus"
+    type="button"
+    (click)="zoomOut()"
+    [disabled]="!canZoomOut()"
+    aria-label="Reducir zoom del mapa"
+    title="Reducir zoom"
+  >
+    −
+  </button>
+
+  <button
+    class="map-zoom-btn map-zoom-btn--plus"
+    type="button"
+    (click)="zoomIn()"
+    [disabled]="!canZoomIn()"
+    aria-label="Aumentar zoom del mapa"
+    title="Aumentar zoom"
+  >
+    +
+  </button>
+
+  <div class="map-container" #scrollContainer>
 
   <!-- ── SVG principal ─────────────────────────────────────────────────── -->
   <svg
@@ -6,6 +37,7 @@
     [attr.width]="svgWidth"
     [attr.height]="svgHeight"
     [attr.viewBox]="'0 0 ' + svgWidth + ' ' + svgHeight"
+    [style.width.px]="mapRenderWidth()"
     aria-label="Mapa del acto"
     role="img"
     (mousemove)="onSvgMouseMove($event)"
@@ -108,17 +140,17 @@
 
   </svg>
 
-  <!-- ── Tooltip HTML (position: fixed, sigue al cursor) ─────────────── -->
-  @if (tooltipData(); as tt) {
-    <div
-      class="map-tooltip"
-      [style.left.px]="tt.x + 16"
-      [style.top.px]="tt.y - 44"
-      role="tooltip"
-    >
-      <span class="map-tooltip__icon">{{ tt.icon }}</span>
-      <span class="map-tooltip__label">{{ tt.label }}</span>
-    </div>
-  }
-
+    <!-- ── Tooltip HTML (position: fixed, sigue al cursor) ─────────────── -->
+    @if (tooltipData(); as tt) {
+      <div
+        class="map-tooltip"
+        [style.left.px]="tt.x + 16"
+        [style.top.px]="tt.y - 44"
+        role="tooltip"
+      >
+        <span class="map-tooltip__icon">{{ tt.icon }}</span>
+        <span class="map-tooltip__label">{{ tt.label }}</span>
+      </div>
+    }
+  </div>
 </div>
