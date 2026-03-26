@@ -54,7 +54,7 @@ const DRAG_THRESHOLD_PX = 10;
  * Fracción de la altura del viewport: por encima de esta Y (px) cuenta como
  * zona "soltar para jugar". Debe coincidir con `.hand__play-zone { height }` en SCSS.
  */
-const PLAY_ZONE_HEIGHT_FRACTION = 0.56;
+const PLAY_ZONE_HEIGHT_FRACTION = 0.62;
 
 /** Per-card stagger for draw animation (ms per index position). */
 const DRAW_STAGGER_MS = 55;

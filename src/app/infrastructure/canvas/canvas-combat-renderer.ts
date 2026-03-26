@@ -902,7 +902,8 @@ export class CanvasCombatRenderer implements CombatRendererPort {
 
     ctx.fillStyle = COMBAT_THEME.textMain;
     ctx.fillText('ENE', bx + 12, by + 74);
-    this.paintEnergyBolts(ctx, bx + 46, by + 67, energy, maxEnergy);
+    // Ajuste visual: en algunas fuentes los rayos quedan algo altos y a la derecha.
+    this.paintEnergyBolts(ctx, bx + 43, by + 72, energy, maxEnergy);
 
     ctx.restore();
   }
