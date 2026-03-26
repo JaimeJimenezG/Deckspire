@@ -164,7 +164,11 @@ export class PlayerStatusBarComponent {
   readonly menuOpen = computed(() => this._menuOpen());
   readonly debugOpen = computed(() => this._debugOpen());
   readonly debugMessage = computed(() => this._debugMessage());
+  readonly optionsOpen = computed(() => this._optionsOpen());
   readonly canSave = computed(() => this.phase() !== 'main-menu' && this.phase() !== 'game-over');
+  readonly masterVolume = signal(80);
+  readonly musicVolume = signal(70);
+  readonly sfxVolume = signal(85);
 
   readonly debugSnapshot = computed(() => {
     const p = this.player();
@@ -184,6 +188,7 @@ export class PlayerStatusBarComponent {
   private readonly _menuOpen = signal(false);
   private readonly _debugOpen = signal(false);
   private readonly _debugMessage = signal<string | null>(null);
+  private readonly _optionsOpen = signal(false);
 
   toggleMenu(): void {
     this._menuOpen.update(v => !v);
@@ -196,6 +201,16 @@ export class PlayerStatusBarComponent {
   closeMenu(): void {
     this._menuOpen.set(false);
     this._debugOpen.set(false);
+  }
+
+  openOptions(): void {
+    this._menuOpen.set(false);
+    this._debugOpen.set(false);
+    this._optionsOpen.set(true);
+  }
+
+  closeOptions(): void {
+    this._optionsOpen.set(false);
   }
 
   toggleDebug(): void {

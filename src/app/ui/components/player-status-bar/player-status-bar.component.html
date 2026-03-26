@@ -140,9 +140,70 @@
         Quit
       </button>
 
-      <button class="status-menu__item status-menu__item--disabled" disabled>
-        Opciones (próximamente)
+      <button class="status-menu__item" (click)="openOptions()">
+        Opciones
       </button>
     </div>
+  </div>
+}
+
+@if (optionsOpen()) {
+  <div class="status-menu-modal__backdrop" (click)="closeOptions()">
+    <section
+      class="status-menu-modal__panel status-menu-options"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="status-options-title"
+      (click)="$event.stopPropagation()">
+      <header class="status-menu-options__header">
+        <h3 id="status-options-title" class="status-menu-modal__title">Opciones</h3>
+        <button class="status-menu-options__close" type="button" (click)="closeOptions()" aria-label="Cerrar opciones">
+          ✕
+        </button>
+      </header>
+
+      <div class="status-menu-options__section">
+        <h4 class="status-menu-options__heading">Audio</h4>
+        <label class="status-menu-options__slider-row">
+          <span>Volumen general</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="masterVolume()"
+            (input)="masterVolume.set(+($any($event.target).value))" />
+        </label>
+        <label class="status-menu-options__slider-row">
+          <span>Volumen de musica</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="musicVolume()"
+            (input)="musicVolume.set(+($any($event.target).value))" />
+        </label>
+        <label class="status-menu-options__slider-row">
+          <span>Volumen de efectos</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="sfxVolume()"
+            (input)="sfxVolume.set(+($any($event.target).value))" />
+        </label>
+      </div>
+
+      <fieldset class="status-menu-options__section status-menu-options__section--disabled" disabled aria-disabled="true">
+        <legend class="status-menu-options__heading">Accesibilidad (proximamente)</legend>
+        <label class="status-menu-options__slider-row">
+          <span>Tamano de texto</span>
+          <input type="range" min="0" max="100" value="50" />
+        </label>
+        <label class="status-menu-options__slider-row">
+          <span>Contraste alto</span>
+          <input type="checkbox" />
+        </label>
+      </fieldset>
+    </section>
   </div>
 }
