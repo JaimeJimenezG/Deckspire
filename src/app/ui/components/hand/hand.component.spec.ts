@@ -245,6 +245,27 @@ describe('HandComponent', () => {
     expect(component.isBeingDragged(2)).toBeTrue();
   });
 
+  it('isBeingDragged should keep the played slot hidden while state is pending commit', () => {
+    const card = makeCard('strike', 1);
+    mockCombatSignal.set(buildCombatState([card], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    component.pendingPlayed.set({ index: 0, card });
+    expect(component.isBeingDragged(0)).toBeTrue();
+  });
+
+  it('should clear pendingPlayed once the played card leaves the hand', () => {
+    const card = makeCard('strike', 1);
+    mockCombatSignal.set(buildCombatState([card], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    component.pendingPlayed.set({ index: 0, card });
+    mockCombatSignal.set(buildCombatState([], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    expect(component.pendingPlayed()).toBeNull();
+  });
+
   // ── Animation state helpers ────────────────────────────────────────────────
 
   it('getCardWrapState should return "visible" for a card not being played', () => {

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   OnDestroy,
@@ -202,6 +203,8 @@ export class HandComponent implements OnDestroy {
 
   /** True once the pointer has moved past DRAG_THRESHOLD_PX during a drag. */
   readonly isDragActive = signal(false);
+  /** Carta recién jugada pendiente de sincronización con el estado global. */
+  readonly pendingPlayed = signal<{ index: number; card: Card } | null>(null);
 
   /**
    * Índice del enemigo cuya zona está actualmente bajo la carta arrastrada.
@@ -247,6 +250,18 @@ export class HandComponent implements OnDestroy {
   private readonly boundPointerUp = this.onPointerUp.bind(this);
   private readonly boundPointerCancel = this.onPointerCancel.bind(this);
 
+  constructor() {
+    effect(() => {
+      const pending = this.pendingPlayed();
+      if (!pending) return;
+
+      const hand = this.hand();
+      if (hand[pending.index] !== pending.card) {
+        this.pendingPlayed.set(null);
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.removeDocListeners();
   }
@@ -270,7 +285,11 @@ export class HandComponent implements OnDestroy {
 
   /** True when the card at `index` is being dragged (hidden from its slot). */
   isBeingDragged(index: number): boolean {
-    return this.isDragActive() && this.draggingIndex() === index;
+    const pending = this.pendingPlayed();
+    return (
+      (this.isDragActive() && this.draggingIndex() === index) ||
+      (pending !== null && pending.index === index)
+    );
   }
 
   /** Estado del trigger @cardWrap mientras la carta sigue en la mano. */
@@ -380,6 +399,7 @@ export class HandComponent implements OnDestroy {
     // fantasma desaparece y la carta se ve un instante en el abanico en
     // estado visible antes de que arranque visible→playing.
     if (willPlay && card) {
+      this.pendingPlayed.set({ index: idx, card });
       this.cardPlayed.emit({ card, targetIdx: targetedZone ?? -1 });
     }
 
