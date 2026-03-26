@@ -1,4 +1,9 @@
-import { fanTransform, fanZIndex, HandComponent } from './hand.component';
+import {
+  clampDragPointToViewport,
+  fanTransform,
+  fanZIndex,
+  HandComponent,
+} from './hand.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { signal } from '@angular/core';
@@ -91,6 +96,30 @@ describe('fanZIndex', () => {
     const leftZ = fanZIndex(0, 5, false);
     const rightZ = fanZIndex(4, 5, false);
     expect(leftZ).toBe(rightZ);
+  });
+});
+
+describe('clampDragPointToViewport', () => {
+  it('should keep the pointer position when already inside safe viewport bounds', () => {
+    const result = clampDragPointToViewport(200, 300, 1080, 1920);
+    expect(result.x).toBeCloseTo(200, 6);
+    expect(result.y).toBeCloseTo(300, 6);
+  });
+
+  it('should clamp x when pointer goes beyond left and right edges', () => {
+    const left = clampDragPointToViewport(-50, 300, 360, 640);
+    const right = clampDragPointToViewport(9999, 300, 360, 640);
+    expect(left.x).toBeGreaterThanOrEqual(0);
+    expect(right.x).toBeLessThanOrEqual(360);
+    expect(left.x).toBeLessThan(right.x);
+  });
+
+  it('should clamp y when pointer goes beyond top and bottom edges', () => {
+    const top = clampDragPointToViewport(200, -120, 360, 640);
+    const bottom = clampDragPointToViewport(200, 9999, 360, 640);
+    expect(top.y).toBeGreaterThanOrEqual(0);
+    expect(bottom.y).toBeLessThanOrEqual(640);
+    expect(top.y).toBeLessThan(bottom.y);
   });
 });
 
@@ -214,6 +243,27 @@ describe('HandComponent', () => {
     component['draggingIndex'].set(2);
     component['isDragActive'].set(true);
     expect(component.isBeingDragged(2)).toBeTrue();
+  });
+
+  it('isBeingDragged should keep the played slot hidden while state is pending commit', () => {
+    const card = makeCard('strike', 1);
+    mockCombatSignal.set(buildCombatState([card], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    component.pendingPlayed.set({ index: 0, card });
+    expect(component.isBeingDragged(0)).toBeTrue();
+  });
+
+  it('should clear pendingPlayed once the played card leaves the hand', () => {
+    const card = makeCard('strike', 1);
+    mockCombatSignal.set(buildCombatState([card], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    component.pendingPlayed.set({ index: 0, card });
+    mockCombatSignal.set(buildCombatState([], 3, 'player-turn'));
+    fixture.detectChanges();
+
+    expect(component.pendingPlayed()).toBeNull();
   });
 
   // ── Animation state helpers ────────────────────────────────────────────────

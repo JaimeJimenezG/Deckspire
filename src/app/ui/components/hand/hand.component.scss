@@ -50,6 +50,8 @@ $card-height: 180px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  transform: scale(var(--hand-fan-scale, 1));
+  transform-origin: bottom center;
   // Aire bajo el abanico (borde de la franja + cartas menos pegadas al borde)
   padding-bottom: 22px;
   pointer-events: none;
@@ -140,7 +142,7 @@ $card-height: 180px;
   left: 0;
   right: 0;
   // Borde inferior = línea "soltar para jugar"; alineado con PLAY_ZONE_HEIGHT_FRACTION en .ts
-  height: 56vh;
+  height: 62vh;
   display: flex;
   align-items: flex-end;
   justify-content: center;
