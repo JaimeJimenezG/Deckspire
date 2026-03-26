@@ -324,4 +324,43 @@ describe('PlayerStatusBarComponent', () => {
     fixture.detectChanges();
     expect(fill.styles['width']).toBe('25%');
   });
+
+  // ── Menú rápido: opciones ────────────────────────────────────────────────
+
+  it('muestra la opción "Opciones" habilitada en el menú rápido', () => {
+    component.toggleMenu();
+    fixture.detectChanges();
+    const buttons = fixture.debugElement.queryAll(By.css('.status-menu__item'));
+    const opcionesBtn = buttons.find(btn => btn.nativeElement.textContent.includes('Opciones'));
+    expect(opcionesBtn).toBeTruthy();
+    expect(opcionesBtn?.nativeElement.disabled).toBeFalse();
+  });
+
+  it('abre el modal de opciones desde el menú rápido', () => {
+    component.toggleMenu();
+    fixture.detectChanges();
+    const buttons = fixture.debugElement.queryAll(By.css('.status-menu__item'));
+    const opcionesBtn = buttons.find(btn => btn.nativeElement.textContent.includes('Opciones'));
+    opcionesBtn?.nativeElement.click();
+    fixture.detectChanges();
+
+    const optionsModal = fixture.debugElement.query(By.css('.status-menu-options'));
+    expect(optionsModal).toBeTruthy();
+  });
+
+  it('renderiza 3 sliders de audio en el modal de opciones', () => {
+    component.openOptions();
+    fixture.detectChanges();
+    const audioSection = fixture.debugElement.query(By.css('.status-menu-options__section'));
+    const sliders = audioSection.queryAll(By.css('input[type="range"]'));
+    expect(sliders.length).toBe(3);
+  });
+
+  it('muestra accesibilidad desactivada en el modal de opciones', () => {
+    component.openOptions();
+    fixture.detectChanges();
+    const disabledSection = fixture.debugElement.query(By.css('.status-menu-options__section--disabled'));
+    expect(disabledSection).toBeTruthy();
+    expect(disabledSection.nativeElement.hasAttribute('disabled')).toBeTrue();
+  });
 });

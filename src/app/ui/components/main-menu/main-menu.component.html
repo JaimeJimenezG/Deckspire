@@ -45,6 +45,17 @@
         <span class="menu__btn-icon" aria-hidden="true">◈</span>
         Crónicas
       </button>
+
+      <button
+        class="menu__btn menu__btn--tertiary"
+        [class.menu__btn--active]="showOptions()"
+        (click)="openOptions()"
+        [attr.aria-expanded]="showOptions()"
+        aria-controls="options-modal"
+        aria-label="Abrir opciones">
+        <span class="menu__btn-icon" aria-hidden="true">⚙</span>
+        Opciones
+      </button>
     </nav>
 
     <aside class="menu__side">
@@ -100,6 +111,69 @@
       }
     </aside>
   </section>
+
+  @if (showOptions()) {
+    <div class="menu__modal-backdrop" (click)="closeOptions()" aria-hidden="true"></div>
+    <section
+      id="options-modal"
+      class="menu__modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="options-title">
+      <header class="menu__modal-header">
+        <h2 id="options-title" class="menu__modal-title">Opciones</h2>
+        <button class="menu__modal-close" type="button" (click)="closeOptions()" aria-label="Cerrar opciones">
+          ✕
+        </button>
+      </header>
+
+      <div class="menu__options-section">
+        <h3 class="menu__options-heading">Audio</h3>
+
+        <label class="menu__slider-row">
+          <span>Volumen general</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="masterVolume()"
+            (input)="masterVolume.set(+($any($event.target).value))" />
+        </label>
+
+        <label class="menu__slider-row">
+          <span>Volumen de musica</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="musicVolume()"
+            (input)="musicVolume.set(+($any($event.target).value))" />
+        </label>
+
+        <label class="menu__slider-row">
+          <span>Volumen de efectos</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="sfxVolume()"
+            (input)="sfxVolume.set(+($any($event.target).value))" />
+        </label>
+      </div>
+
+      <fieldset class="menu__options-section menu__options-section--disabled" disabled aria-disabled="true">
+        <legend class="menu__options-heading">Accesibilidad (proximamente)</legend>
+        <label class="menu__slider-row">
+          <span>Tamano de texto</span>
+          <input type="range" min="0" max="100" value="50" />
+        </label>
+        <label class="menu__slider-row">
+          <span>Contraste alto</span>
+          <input type="checkbox" />
+        </label>
+      </fieldset>
+    </section>
+  }
 
   <footer class="menu__footer">
     <small class="menu__version">v0.1.0</small>

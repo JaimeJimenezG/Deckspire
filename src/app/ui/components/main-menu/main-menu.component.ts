@@ -35,6 +35,10 @@ export class MainMenuComponent implements OnInit {
   readonly stats = signal<GameStats | null>(null);
   readonly loading = signal(false);
   readonly showStats = signal(false);
+  readonly showOptions = signal(false);
+  readonly masterVolume = signal(80);
+  readonly musicVolume = signal(70);
+  readonly sfxVolume = signal(85);
 
   async ngOnInit(): Promise<void> {
     const [hasSave, stats] = await Promise.all([
@@ -67,5 +71,13 @@ export class MainMenuComponent implements OnInit {
 
   toggleStats(): void {
     this.showStats.update(v => !v);
+  }
+
+  openOptions(): void {
+    this.showOptions.set(true);
+  }
+
+  closeOptions(): void {
+    this.showOptions.set(false);
   }
 }

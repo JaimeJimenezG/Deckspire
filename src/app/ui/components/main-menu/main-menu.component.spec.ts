@@ -235,4 +235,41 @@ describe('MainMenuComponent', () => {
       expect(component.showStats()).toBeFalse();
     });
   });
+
+  describe('modal de opciones', () => {
+    it('debe mostrar el botón "Opciones"', async () => {
+      const { fixture } = await createComponent();
+      const buttons = fixture.debugElement.queryAll(By.css('.menu__btn--tertiary'));
+      const opcionesBtn = buttons.find(btn => btn.nativeElement.textContent.includes('Opciones'));
+      expect(opcionesBtn).toBeTruthy();
+    });
+
+    it('debe abrir el modal al pulsar "Opciones"', async () => {
+      const { fixture } = await createComponent();
+      const buttons = fixture.debugElement.queryAll(By.css('.menu__btn--tertiary'));
+      const opcionesBtn = buttons.find(btn => btn.nativeElement.textContent.includes('Opciones'));
+      opcionesBtn?.nativeElement.click();
+      fixture.detectChanges();
+      const modal = fixture.debugElement.query(By.css('.menu__modal'));
+      expect(modal).toBeTruthy();
+    });
+
+    it('debe renderizar tres sliders en la sección de audio', async () => {
+      const { fixture } = await createComponent();
+      fixture.componentInstance.openOptions();
+      fixture.detectChanges();
+      const audioSection = fixture.debugElement.query(By.css('.menu__options-section'));
+      const sliders = audioSection.queryAll(By.css('input[type="range"]'));
+      expect(sliders.length).toBe(3);
+    });
+
+    it('debe mostrar accesibilidad desactivada', async () => {
+      const { fixture } = await createComponent();
+      fixture.componentInstance.openOptions();
+      fixture.detectChanges();
+      const disabledFieldset = fixture.debugElement.query(By.css('.menu__options-section--disabled'));
+      expect(disabledFieldset).toBeTruthy();
+      expect(disabledFieldset.nativeElement.hasAttribute('disabled')).toBeTrue();
+    });
+  });
 });
