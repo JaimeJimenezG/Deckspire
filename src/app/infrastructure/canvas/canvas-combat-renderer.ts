@@ -1,8 +1,13 @@
+import { Inject } from '@angular/core';
 import type { Card } from '../../domain/models/card.model';
 import type { CombatState } from '../../domain/models/combat.model';
 import type { EnemyInstance } from '../../domain/models/enemy.model';
+import type { SpriteAtlasManifest, SpriteFrameRect } from '../../domain/models/sprite-atlas.model';
 import type { CombatRendererPort } from '../../domain/ports/outbound/combat-renderer.port';
+import type { LpcSpriteComposerPort } from '../../domain/ports/outbound/lpc-sprite-composer.port';
+import { LPC_SPRITE_COMPOSER, PLAYER_LPC_PRESET_URL } from '../../di/tokens';
 import { ENEMIES_BY_ID } from '../../domain/data/enemies.data';
+import { buildLpcUniversalCombatIdleManifest } from '../../domain/services/lpc-combat-atlas';
 import { ParticleSystem } from './particles';
 import {
   drawBlockBadge,
@@ -77,6 +82,16 @@ export class CanvasCombatRenderer implements CombatRendererPort {
   private lastTimestamp = 0;
   private running = false;
 
+  /** Textura compuesta LPC + manifiesto virtual para combat idle (fila sur). */
+  private playerLpc:
+    | {
+        readonly texture: CanvasImageSource;
+        readonly manifest: SpriteAtlasManifest;
+      }
+    | null = null;
+  private playerLpcAnimT = 0;
+  private playerLpcLoadStarted = false;
+
   // Estado del combate que se pinta en cada frame
   private combat: CombatState | null = null;
 
@@ -85,6 +100,11 @@ export class CanvasCombatRenderer implements CombatRendererPort {
   private readonly deathAnimations: DeathAnimation[] = [];
   private readonly damageFlashes: DamageFlash[] = [];
   private shake: ScreenShake | null = null;
+
+  constructor(
+    @Inject(LPC_SPRITE_COMPOSER) private readonly lpcComposer: LpcSpriteComposerPort,
+    @Inject(PLAYER_LPC_PRESET_URL) private readonly playerLpcPresetUrl: string | null,
+  ) {}
 
   // ── Ciclo de vida del canvas ───────────────────────────────────────────────
 
@@ -100,6 +120,11 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     this.running = true;
     this.lastTimestamp = performance.now();
     this.rafId = requestAnimationFrame(this.renderLoop);
+
+    if (this.playerLpcPresetUrl && !this.playerLpcLoadStarted) {
+      this.playerLpcLoadStarted = true;
+      void this.bootstrapPlayerLpc();
+    }
   }
 
   /**
@@ -116,6 +141,28 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     this.deathAnimations.length = 0;
     this.damageFlashes.length = 0;
     this.shake = null;
+    this.playerLpcLoadStarted = false;
+  }
+
+  private async bootstrapPlayerLpc(): Promise<void> {
+    const url = this.playerLpcPresetUrl;
+    if (!url) return;
+    try {
+      const res = await fetch(url);
+      const json = await res.text();
+      const out = await this.lpcComposer.compose(json);
+      const handle = out.textureHandle as HTMLCanvasElement;
+      if (!handle?.width) {
+        throw new Error('LPC: texture handle is not a canvas');
+      }
+      this.playerLpc = {
+        texture: handle,
+        manifest: buildLpcUniversalCombatIdleManifest(),
+      };
+    } catch (err) {
+      console.warn('[Deckspire] LPC player sprite not available, using vector fallback.', err);
+      this.playerLpc = null;
+    }
   }
 
   // ── CombatRendererPort ─────────────────────────────────────────────────────
@@ -231,6 +278,7 @@ export class CanvasCombatRenderer implements CombatRendererPort {
 
   private update(dt: number): void {
     this.particles.update(dt);
+    this.playerLpcAnimT += dt;
 
     // Progresa animaciones de muerte y resuelve las terminadas
     for (let i = this.deathAnimations.length - 1; i >= 0; i--) {
@@ -416,12 +464,35 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     ctx: CanvasRenderingContext2D,
     pos: EntityPosition,
     combat: CombatState,
-    alpha: number,
+      alpha: number,
   ): void {
     const { x, y } = pos;
     const { player } = combat;
 
-    drawPlayerBody(ctx, x, y, alpha);
+    const lpcRect = this.resolveLpcCombatIdleFrame();
+    if (lpcRect && this.playerLpc) {
+      const scale = 2.25;
+      const sw = lpcRect.w;
+      const sh = lpcRect.h;
+      const dw = sw * scale;
+      const dh = sh * scale;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(
+        this.playerLpc.texture,
+        lpcRect.x,
+        lpcRect.y,
+        sw,
+        sh,
+        x - dw / 2,
+        y - dh / 2 - 18,
+        dw,
+        dh,
+      );
+      ctx.restore();
+    } else {
+      drawPlayerBody(ctx, x, y, alpha);
+    }
 
     if (alpha < 0.05) return;
 
@@ -452,6 +523,20 @@ export class CanvasCombatRenderer implements CombatRendererPort {
     ctx.textBaseline = 'top';
     ctx.fillText('Jugador', x, y + 114);
     ctx.restore();
+  }
+
+  private resolveLpcCombatIdleFrame(): SpriteFrameRect | null {
+    const pack = this.playerLpc;
+    if (!pack) return null;
+    const clip = pack.manifest.animations?.['idle'];
+    if (!clip || clip.frames.length === 0) return null;
+    const dur = clip.frameDurationSec;
+    const total = dur * clip.frames.length;
+    const t = total > 0 ? this.playerLpcAnimT % total : 0;
+    const idx = Math.min(clip.frames.length - 1, Math.floor(t / dur));
+    const key = clip.frames[idx];
+    const rect = pack.manifest.frames[key];
+    return rect ?? null;
   }
 
   private paintTurnBadge(

@@ -1,4 +1,6 @@
 import { InjectionToken, type Provider } from '@angular/core';
+import { LPC_SPRITE_COMPOSER, LPC_SPRITESHEET_BASE_URL, PLAYER_LPC_PRESET_URL } from '../../di/tokens';
+import { LpcBrowserComposerService } from '../../infrastructure/canvas/lpc-browser-composer.service';
 import type { NewGameUseCase } from '../../domain/ports/inbound/new-game.usecase';
 import type { StartCombatUseCase } from '../../domain/ports/inbound/start-combat.usecase';
 import type { PlayCardUseCase } from '../../domain/ports/inbound/play-card.usecase';
@@ -12,6 +14,7 @@ import type { LoadGameUseCase } from '../../domain/ports/inbound/load-game.useca
 import type { ResolveEventUseCase } from '../../domain/ports/inbound/resolve-event.usecase';
 import type { GameRepository } from '../../domain/ports/outbound/game-repository.port';
 import type { CombatRendererPort } from '../../domain/ports/outbound/combat-renderer.port';
+import type { LpcSpriteComposerPort } from '../../domain/ports/outbound/lpc-sprite-composer.port';
 
 import { NewGameUseCaseImpl } from '../../application/use-cases/new-game.usecase';
 import { StartCombatUseCaseImpl } from '../../application/use-cases/start-combat.usecase';
@@ -87,9 +90,16 @@ export const GAME_PROVIDERS: Provider[] = [
     provide: GAME_REPOSITORY,
     useFactory: () => new IndexedDbGameRepository(),
   },
+  LpcBrowserComposerService,
+  {
+    provide: LPC_SPRITE_COMPOSER,
+    useExisting: LpcBrowserComposerService,
+  },
   {
     provide: COMBAT_RENDERER,
-    useFactory: () => new CanvasCombatRenderer(),
+    deps: [LPC_SPRITE_COMPOSER, PLAYER_LPC_PRESET_URL],
+    useFactory: (lpc: LpcSpriteComposerPort, presetUrl: string | null) =>
+      new CanvasCombatRenderer(lpc, presetUrl),
   },
 
   // ── Casos de uso ──────────────────────────────────────────────────────────

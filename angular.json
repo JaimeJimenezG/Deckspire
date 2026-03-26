@@ -51,6 +51,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "third-party/Universal-LPC-Spritesheet-Character-Generator/sources",
+                "output": "/lpc-generator/sources"
+              },
+              {
+                "glob": "item-metadata.js",
+                "input": "third-party/Universal-LPC-Spritesheet-Character-Generator",
+                "output": "/lpc-generator"
               }
             ],
             "styles": [
@@ -113,6 +123,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "third-party/Universal-LPC-Spritesheet-Character-Generator/sources",
+                "output": "/lpc-generator/sources"
+              },
+              {
+                "glob": "item-metadata.js",
+                "input": "third-party/Universal-LPC-Spritesheet-Character-Generator",
+                "output": "/lpc-generator"
               }
             ],
             "styles": [
