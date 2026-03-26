@@ -12,8 +12,9 @@ Deckspire es un roguelike de construcción de mazos inspirado en *Slay the Spire
 | [Infraestructura](./docs/infrastructure.md) | Adaptadores driven: IndexedDB y Canvas 2D |
 | [UI](./docs/ui.md) | Componentes Angular, GameStateStore y DI |
 | [Diseño de juego](./docs/game-design.md) | Mecánicas, cartas, enemigos, eventos y balanceo |
-| [Plan](./docs/deckspire.plan.md) | Integration Plan | 
+| [Plan](./docs/deckspire.plan.md) | Integration Plan |
 | [TODO](./docs/todo.md) | TODO list |
+| [Third-party](./docs/third-party.md) | Submódulos (generador LPC), `git submodule`, `npm install` por carpeta |
 
 ## Stack tecnológico
 

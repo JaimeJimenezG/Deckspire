@@ -39,7 +39,7 @@ Adaptador de persistencia que usa IndexedDB a través de la librería `idb` (acc
 **Puerto**: `CombatRendererPort`
 **Ubicación**: `infrastructure/canvas/canvas-combat-renderer.ts`
 
-Adaptador de renderizado que usa Canvas 2D para dibujar la escena de combate. El dibujo por defecto sigue siendo geométrico (`sprite-helpers.ts`); los **sprites en imagen** viven en `public/sprites/` (ver convención spritesheet + `.manifest.json` en la regla `infrastructure-adapters.mdc` y el modelo `SpriteAtlasManifest`).
+Adaptador de renderizado que usa Canvas 2D para dibujar la escena de combate. El dibujo por defecto sigue siendo geométrico (`sprite-helpers.ts`); los **sprites en imagen** viven en `public/sprites/` (ver convención spritesheet + `.manifest.json` en la regla `infrastructure-adapters.mdc` y el modelo `SpriteAtlasManifest`). Para **componer arte LPC** fuera del árbol Angular se usa el submódulo en `third-party/`; instalación, servidor local y flujo hacia `public/sprites/` están descritos en [third-party.md](./third-party.md).
 
 ### Ciclo de vida
 
