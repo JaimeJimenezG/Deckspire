@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "amber",
+      "name": "Body color (amber)"
+    },
+    "head": {
+      "itemId": "heads_goblin",
+      "variant": "olive",
+      "name": "Goblin (olive)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "brown",
+      "name": "Longsleeve (brown)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "brown",
+      "name": "Cuffed Pants (brown)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "brown",
+      "name": "Basic Shoes (brown)"
+    },
+    "weapon": {
+      "itemId": "weapon_sword_dagger",
+      "variant": "dagger",
+      "name": "Dagger"
+    }
+  }
+}

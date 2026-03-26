@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "texture": "placeholder.png",
+  "frames": {
+    "placeholder-0": { "x": 0, "y": 0, "w": 1, "h": 1 }
+  },
+  "animations": {
+    "idle": { "frames": ["placeholder-0"], "frameDurationSec": 0.25 }
+  }
+}

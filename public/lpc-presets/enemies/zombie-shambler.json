@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body_zombie",
+      "variant": "zombie",
+      "name": "Zombie body"
+    },
+    "head": {
+      "itemId": "heads_zombie",
+      "variant": "zombie_green",
+      "name": "Zombie head (green)"
+    }
+  }
+}

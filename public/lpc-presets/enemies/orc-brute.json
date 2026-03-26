@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "taupe",
+      "name": "Body color (taupe)"
+    },
+    "head": {
+      "itemId": "heads_orc_male",
+      "variant": "olive",
+      "name": "Orc male (olive)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "forest",
+      "name": "Longsleeve (forest)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "brown",
+      "name": "Cuffed Pants (brown)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "brown",
+      "name": "Basic Shoes (brown)"
+    },
+    "belt": {
+      "itemId": "belt_leather",
+      "variant": "brown",
+      "name": "Leather Belt (brown)"
+    },
+    "weapon": {
+      "itemId": "weapon_blunt_club",
+      "variant": "club",
+      "name": "Club"
+    }
+  }
+}

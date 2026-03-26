@@ -280,6 +280,7 @@ const jawWorm: EnemyDefinition = {
   id: 'jaw-worm',
   name: 'Jaw Worm',
   tier: 'normal',
+  lpcPresetPath: 'lpc-presets/enemies/zombie-shambler.json',
   baseHp: { min: 40, max: 44 },
   pattern: {
     type: 'weighted-random',
@@ -300,6 +301,7 @@ const cultist: EnemyDefinition = {
   id: 'cultist',
   name: 'Cultist',
   tier: 'normal',
+  lpcPresetPath: 'lpc-presets/enemies/dark-cultist.json',
   baseHp: { min: 48, max: 54 },
   pattern: {
     type: 'cyclic',
@@ -316,6 +318,7 @@ const redLouse: EnemyDefinition = {
   id: 'red-louse',
   name: 'Red Louse',
   tier: 'normal',
+  lpcPresetPath: 'lpc-presets/enemies/goblin-raider.json',
   baseHp: { min: 10, max: 15 },
   pattern: {
     type: 'weighted-random',
@@ -331,6 +334,7 @@ const acidSlimeM: EnemyDefinition = {
   id: 'acid-slime-m',
   name: 'Acid Slime (M)',
   tier: 'normal',
+  lpcPresetPath: 'lpc-presets/enemies/alien-invoker.json',
   baseHp: { min: 28, max: 32 },
   pattern: {
     type: 'weighted-random',
@@ -347,6 +351,7 @@ const fungiBeast: EnemyDefinition = {
   id: 'fungi-beast',
   name: 'Fungi Beast',
   tier: 'normal',
+  lpcPresetPath: 'lpc-presets/enemies/fey-sprite.json',
   baseHp: { min: 22, max: 28 },
   pattern: {
     type: 'cyclic',
@@ -369,6 +374,7 @@ const gremlinNob: EnemyDefinition = {
   id: 'gremlin-nob',
   name: 'Gremlin Nob',
   tier: 'elite',
+  lpcPresetPath: 'lpc-presets/enemies/orc-brute.json',
   baseHp: { min: 82, max: 86 },
   pattern: {
     type: 'conditional',
@@ -396,6 +402,7 @@ const lagavulin: EnemyDefinition = {
   id: 'lagavulin',
   name: 'Lagavulin',
   tier: 'elite',
+  lpcPresetPath: 'lpc-presets/enemies/wolfkin-rager.json',
   baseHp: { min: 109, max: 111 },
   pattern: {
     type: 'phased',
@@ -442,6 +449,7 @@ const sentryA: EnemyDefinition = {
   id: 'sentry-a',
   name: 'Sentry',
   tier: 'elite',
+  lpcPresetPath: 'lpc-presets/enemies/skeleton-warrior.json',
   baseHp: { min: 38, max: 42 },
   pattern: {
     type: 'cyclic',
@@ -453,6 +461,7 @@ const sentryB: EnemyDefinition = {
   id: 'sentry-b',
   name: 'Sentry',
   tier: 'elite',
+  lpcPresetPath: 'lpc-presets/enemies/skeleton-warrior.json',
   baseHp: { min: 38, max: 42 },
   pattern: {
     type: 'cyclic',
@@ -464,6 +473,7 @@ const sentryC: EnemyDefinition = {
   id: 'sentry-c',
   name: 'Sentry',
   tier: 'elite',
+  lpcPresetPath: 'lpc-presets/enemies/skeleton-warrior.json',
   baseHp: { min: 38, max: 42 },
   pattern: {
     type: 'cyclic',
@@ -489,6 +499,7 @@ const theGuardian: EnemyDefinition = {
   id: 'the-guardian',
   name: 'The Guardian',
   tier: 'boss',
+  lpcPresetPath: 'lpc-presets/enemies/minotaur-guard.json',
   baseHp: { min: 235, max: 250 },
   pattern: {
     type: 'phased',
@@ -541,6 +552,7 @@ const hexaghost: EnemyDefinition = {
   id: 'hexaghost',
   name: 'Hexaghost',
   tier: 'boss',
+  lpcPresetPath: 'lpc-presets/enemies/mage-male.json',
   baseHp: { min: 250, max: 250 },
   pattern: {
     type: 'phased',

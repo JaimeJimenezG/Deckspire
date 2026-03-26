@@ -3,7 +3,12 @@
   <!-- Escenario 16:9 centrado: el bitmap del canvas coincide con el CSS y no se estira -->
   <div class="combat-view__stage-fill">
     <div class="combat-view__stage">
-      <canvas #combatCanvas class="combat-view__canvas"></canvas>
+      <canvas
+        #combatCanvas
+        class="combat-view__canvas"
+        (mousemove)="onCanvasMouseMove($event)"
+        (mouseleave)="onCanvasMouseLeave()"
+      ></canvas>
 
       @if (isTargeting()) {
         <div
@@ -43,6 +48,24 @@
             </div>
           }
         }
+      }
+
+      @if (hoveredEnemyIntentTooltip(); as tip) {
+        <aside
+          class="combat-view__enemy-intent-tooltip"
+          [style.left.px]="tip.x"
+          [style.top.px]="tip.y"
+          role="tooltip"
+          aria-live="polite"
+        >
+          <p class="enemy-intent-tooltip__title">{{ tip.enemyName }}</p>
+          <p class="enemy-intent-tooltip__summary">{{ tip.summary }}</p>
+          <ul class="enemy-intent-tooltip__list">
+            @for (line of tip.details; track $index) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+        </aside>
       }
     </div>
   </div>

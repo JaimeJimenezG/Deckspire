@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   ElementRef,
+  HostListener,
   inject,
   signal,
   viewChild,
@@ -190,11 +191,27 @@ export class MapViewComponent {
 
   readonly hoveredNodeId = signal<string | null>(null);
   readonly mousePos = signal<{ x: number; y: number } | null>(null);
+  readonly mapZoom = signal(1);
+  readonly viewportWidth = signal(
+    typeof window !== 'undefined' ? window.innerWidth : 1280,
+  );
 
   // ── Dimensiones del SVG (expuestas al template) ───────────────────────────
 
   readonly svgWidth  = SVG_W;
   readonly svgHeight = SVG_H;
+  readonly canZoomOut = computed(() => this.mapZoom() > 0.75);
+  readonly canZoomIn = computed(() => this.mapZoom() < 1.55);
+  readonly mapRenderWidth = computed(() => {
+    const w = this.viewportWidth();
+    const base =
+      w <= 400 ? 930 :
+      w <= 480 ? 860 :
+      w <= 640 ? 780 :
+      w <= 768 ? 720 :
+      w <= 1024 ? 650 : 600;
+    return Math.round(base * this.mapZoom());
+  });
 
   // ── Posiciones precalculadas (evitar recomputar en nodes y edges) ─────────
 
@@ -333,6 +350,19 @@ export class MapViewComponent {
     }
   }
 
+  zoomIn(): void {
+    this.mapZoom.update(v => Math.min(1.55, +(v + 0.1).toFixed(2)));
+  }
+
+  zoomOut(): void {
+    this.mapZoom.update(v => Math.max(0.75, +(v - 0.1).toFixed(2)));
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.viewportWidth.set(window.innerWidth);
+  }
+
   // ── Helpers internos ──────────────────────────────────────────────────────
 
   private scrollToNode(nodeId: string): void {
@@ -340,12 +370,17 @@ export class MapViewComponent {
     const pos = this.positions();
     if (!el || !pos.has(nodeId)) return;
 
-    const { y } = pos.get(nodeId)!;
+    const { x, y } = pos.get(nodeId)!;
     // Convertir coordenada SVG (user units) a píxeles CSS según el scale actual del SVG.
     // El SVG puede estar escalado (max-width: 100% en móvil), por lo que no podemos usar
     // las coordenadas SVG directamente como píxeles de scroll.
-    const scale = el.scrollHeight > 0 ? el.scrollHeight / SVG_H : 1;
-    el.scrollTo({ top: y * scale - el.clientHeight / 2, behavior: 'smooth' });
+    const scaleY = el.scrollHeight > 0 ? el.scrollHeight / SVG_H : 1;
+    const scaleX = el.scrollWidth > 0 ? el.scrollWidth / SVG_W : 1;
+    el.scrollTo({
+      top: y * scaleY - el.clientHeight / 2,
+      left: x * scaleX - el.clientWidth / 2,
+      behavior: 'smooth',
+    });
   }
 }
 

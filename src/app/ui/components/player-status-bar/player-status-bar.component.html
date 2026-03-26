@@ -80,6 +80,69 @@
       </div>
     }
 
+    <div class="status-menu">
+      <button
+        class="status-menu__trigger"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-haspopup="dialog"
+        aria-label="Abrir menú rápido"
+      >
+        ☰
+      </button>
+    </div>
+
   </div>
 
 </div>
+
+@if (menuOpen()) {
+  <div class="status-menu-modal__backdrop" (click)="closeMenu()">
+    <div class="status-menu-modal__panel" role="dialog" aria-label="Menú rápido" (click)="$event.stopPropagation()">
+      <h3 class="status-menu-modal__title">Menú</h3>
+
+      <button class="status-menu__item status-menu__item--continue" (click)="closeMenu()">
+        Continuar
+      </button>
+
+      <button class="status-menu__item status-menu__item--debug" (click)="toggleDebug()">
+        Debug
+      </button>
+
+      @if (debugOpen()) {
+        <div class="status-menu__debug">
+          <p class="status-menu__debug-line">Fase: {{ debugSnapshot().phase }}</p>
+          <p class="status-menu__debug-line">Piso: {{ debugSnapshot().floor }} · Acto: {{ debugSnapshot().act }}</p>
+          <p class="status-menu__debug-line">HP: {{ debugSnapshot().hp }} · Bloqueo: {{ debugSnapshot().block }}</p>
+          <p class="status-menu__debug-line">Energía: {{ debugSnapshot().energy }}</p>
+          <p class="status-menu__debug-line">Oro: {{ debugSnapshot().gold }} · Reliquias: {{ debugSnapshot().relics }}</p>
+          <div class="status-menu__debug-teleports">
+            <button class="status-menu__mini-btn" (click)="debugOpenShop()">Abrir tienda</button>
+            <button class="status-menu__mini-btn" (click)="debugOpenEvent()">Abrir evento</button>
+            <button class="status-menu__mini-btn" (click)="debugStartCombat('combat')">Abrir batalla</button>
+            <button class="status-menu__mini-btn" (click)="debugStartCombat('elite')">Abrir elite</button>
+            <button class="status-menu__mini-btn" (click)="debugStartCombat('boss')">Abrir boss</button>
+            <button class="status-menu__mini-btn" (click)="debugWinCurrentCombat()">Ganar combate actual</button>
+            <button class="status-menu__mini-btn" (click)="debugFinishCombat()">Acabar combate</button>
+            <button class="status-menu__mini-btn status-menu__mini-btn--danger" (click)="debugSuicide()">Suicidarse</button>
+          </div>
+          <div class="status-menu__debug-actions">
+            <button class="status-menu__mini-btn" (click)="copyDebugSnapshot()">Copiar snapshot</button>
+            <button class="status-menu__mini-btn" [disabled]="!canSave()" (click)="saveNow()">Guardar</button>
+          </div>
+          @if (debugMessage(); as msg) {
+            <p class="status-menu__debug-msg">{{ msg }}</p>
+          }
+        </div>
+      }
+
+      <button class="status-menu__item status-menu__item--quit" (click)="quitToMainMenu()">
+        Quit
+      </button>
+
+      <button class="status-menu__item status-menu__item--disabled" disabled>
+        Opciones (próximamente)
+      </button>
+    </div>
+  </div>
+}

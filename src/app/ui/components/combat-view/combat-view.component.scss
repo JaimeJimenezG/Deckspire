@@ -15,12 +15,16 @@ $color-defeat:  #7f8c8d;
 // ── Contenedor principal ──────────────────────────────────────────────────────
 
 .combat-view {
+  --hand-safe-space: 272px;
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: $bg-darkest;
+  background:
+    radial-gradient(900px 500px at 75% 15%, rgba(184, 105, 51, 0.12), transparent 72%),
+    radial-gradient(800px 460px at 20% 90%, rgba(88, 106, 164, 0.08), transparent 74%),
+    linear-gradient(180deg, #100d17 0%, #0a080f 100%);
   overflow: hidden;
   // Tamaño del escenario contenido (16:9) respecto al área útil de combate
   container-type: size;
@@ -32,9 +36,12 @@ $color-defeat:  #7f8c8d;
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 10px; // pequeno gap respecto a la barra superior
+  padding-bottom: var(--hand-safe-space);
 }
 
 // Encaja 16:9 dentro del contenedor sin deformar (bandas laterales o superior/inferior)
@@ -46,6 +53,11 @@ $color-defeat:  #7f8c8d;
   max-width: 100%;
   max-height: 100%;
   overflow: hidden;
+  border: 1px solid rgba(204, 152, 90, 0.34);
+  border-radius: 10px;
+  box-shadow:
+    0 18px 30px rgba(0, 0, 0, 0.46),
+    inset 0 0 0 1px rgba(241, 197, 134, 0.08);
 }
 
 .combat-view__canvas {
@@ -65,7 +77,7 @@ $color-defeat:  #7f8c8d;
   justify-content: space-between;
   padding: 14px 16px;
   pointer-events: none; // deja el canvas y la mano recibir eventos
-  z-index: 10;
+  z-index: 40; // por delante de la mano (z-index: 20)
 }
 
 // ── Stats del jugador ─────────────────────────────────────────────────────────
@@ -84,8 +96,8 @@ $color-defeat:  #7f8c8d;
   gap: 6px;
   padding: 6px 10px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 10, 14, 0.72);
+  border: 1px solid rgba(214, 164, 102, 0.26);
   backdrop-filter: blur(6px);
   font-size: 13px;
   font-weight: 600;
@@ -128,8 +140,8 @@ $color-defeat:  #7f8c8d;
   gap: 5px;
   padding: 5px 10px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 10, 14, 0.72);
+  border: 1px solid rgba(214, 164, 102, 0.26);
   backdrop-filter: blur(6px);
   font-size: 14px;
   font-weight: 700;
@@ -157,18 +169,20 @@ $color-defeat:  #7f8c8d;
 // ── Botón fin de turno ────────────────────────────────────────────────────────
 
 .hud__actions {
+  position: absolute;
+  right: 24px;
+  bottom: 220px;
+  z-index: 30; // por delante de la mano (z-index: 20)
   display: flex;
   justify-content: flex-end;
-  // Espacio sobre la franja de la mano (~244 px + margen inferior de la mano)
-  padding-bottom: 280px;
   pointer-events: all; // reactiva eventos solo en este bloque
 }
 
 .hud__end-turn {
   padding: 10px 26px;
-  border: 2px solid rgba($text-gold, 0.3);
+  border: 2px solid rgba($text-gold, 0.45);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(12, 10, 14, 0.78);
   color: rgba($text-primary, 0.4);
   font-size: 13px;
   font-weight: 700;
@@ -184,10 +198,10 @@ $color-defeat:  #7f8c8d;
     border-color: $text-gold;
     color: $text-gold;
     cursor: pointer;
-    box-shadow: 0 0 14px rgba($text-gold, 0.25);
+    box-shadow: 0 0 16px rgba($text-gold, 0.32);
 
     &:hover:not(:disabled) {
-      background: rgba($text-gold, 0.15);
+      background: rgba(79, 52, 28, 0.55);
       box-shadow: 0 0 24px rgba($text-gold, 0.5);
       transform: translateY(-2px);
     }
@@ -232,7 +246,7 @@ $color-defeat:  #7f8c8d;
   position: absolute;
   inset: 0;
   z-index: 15; // entre canvas (0) y mano (20)
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.32);
   animation: targeting-in 120ms ease;
   cursor: default;
 }
@@ -245,9 +259,9 @@ $color-defeat:  #7f8c8d;
   margin: 0;
   padding: 5px 16px;
   border-radius: 20px;
-  background: rgba(0, 0, 0, 0.65);
-  border: 1px solid rgba(255, 80, 80, 0.5);
-  color: rgba(255, 160, 160, 0.95);
+  background: rgba(16, 12, 13, 0.78);
+  border: 1px solid rgba(222, 128, 104, 0.6);
+  color: rgba(247, 201, 183, 0.95);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -262,8 +276,8 @@ $color-defeat:  #7f8c8d;
   width: 62px;
   height: 62px;
   border-radius: 50%;
-  background: rgba(255, 60, 60, 0.18);
-  border: 2px solid rgba(255, 80, 80, 0.75);
+  background: rgba(130, 54, 42, 0.3);
+  border: 2px solid rgba(224, 132, 108, 0.82);
   cursor: crosshair;
   display: flex;
   align-items: center;
@@ -273,8 +287,8 @@ $color-defeat:  #7f8c8d;
 
   &:hover,
   &:focus-visible {
-    background: rgba(255, 60, 60, 0.45);
-    border-color: rgba(255, 120, 120, 1);
+    background: rgba(179, 78, 61, 0.5);
+    border-color: rgba(243, 171, 144, 1);
     transform: translate(-50%, -50%) scale(1.18);
     animation: none;
     outline: none;
@@ -287,7 +301,7 @@ $color-defeat:  #7f8c8d;
 
 .targeting__reticle {
   font-size: 26px;
-  color: rgba(255, 130, 130, 0.9);
+  color: rgba(255, 197, 174, 0.95);
   pointer-events: none;
   line-height: 1;
 }
@@ -314,6 +328,46 @@ $color-defeat:  #7f8c8d;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.combat-view__enemy-intent-tooltip {
+  position: absolute;
+  width: min(240px, calc(100% - 16px));
+  transform: translateY(-100%);
+  z-index: 35;
+  pointer-events: none;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(224, 176, 118, 0.52);
+  background: rgba(13, 10, 14, 0.92);
+  color: #e9decb;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.enemy-intent-tooltip__title {
+  margin: 0 0 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f0c98a;
+}
+
+.enemy-intent-tooltip__summary {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #e6d8c0;
+}
+
+.enemy-intent-tooltip__list {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 2px;
+  font-size: 10.5px;
+  color: #cfc1a8;
 }
 
 .drag-reticle__ring {
@@ -357,6 +411,10 @@ $color-defeat:  #7f8c8d;
 // ── Responsive ────────────────────────────────────────────────────────────────
 
 @media (max-width: 480px) {
+  .combat-view {
+    --hand-safe-space: 242px;
+  }
+
   .combat-view__hud {
     padding: 8px 10px;
   }
@@ -389,7 +447,9 @@ $color-defeat:  #7f8c8d;
   }
 
   .hud__actions {
-    padding-bottom: 240px;
+    left: 10px;
+    right: 10px;
+    bottom: 190px;
   }
 
   .hud__end-turn {
@@ -399,8 +459,70 @@ $color-defeat:  #7f8c8d;
   }
 }
 
+// Portrait (móvil/tablet vertical): reservar menos altura a la mano y
+// permitir que el escenario 16:9 use más ancho útil sin quedar diminuto.
+@media (orientation: portrait) and (max-width: 900px) {
+  .combat-view {
+    --hand-safe-space: 236px;
+  }
+
+  .combat-view__stage-fill {
+    // Ocupar toda el area util sin invadir la franja de la mano.
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    padding-top: 4px;
+  }
+
+  .combat-view__stage {
+    // En portrait priorizamos ocupar el espacio disponible.
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .combat-view__hand {
+    bottom: 6px;
+    transform: scale(0.88);
+    transform-origin: bottom center;
+  }
+
+  .hud__actions {
+    left: 12px;
+    right: 12px;
+    bottom: 220px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  .combat-view {
+    --hand-safe-space: 216px;
+  }
+
+  .combat-view__stage-fill {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .combat-view__hand {
+    transform: scale(0.82);
+    bottom: 4px;
+  }
+
+  .hud__actions {
+    left: 10px;
+    right: 10px;
+    bottom: 190px;
+  }
+}
+
 // Landscape móvil: pantalla baja, compactar el HUD y reducir espacio bajo el botón
 @media (max-height: 500px) and (orientation: landscape) {
+  .combat-view {
+    --hand-safe-space: 172px;
+  }
+
   .combat-view__hand {
     bottom: 8px;
   }
@@ -419,7 +541,9 @@ $color-defeat:  #7f8c8d;
   }
 
   .hud__actions {
-    padding-bottom: 168px;
+    left: 10px;
+    right: 10px;
+    bottom: 146px;
   }
 
   .hud__end-turn {

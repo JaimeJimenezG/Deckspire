@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body_skeleton",
+      "variant": "skeleton",
+      "name": "Skeleton body"
+    },
+    "head": {
+      "itemId": "heads_skeleton",
+      "variant": "skeleton",
+      "name": "Skeleton head"
+    },
+    "weapon": {
+      "itemId": "weapon_sword_longsword",
+      "variant": "longsword",
+      "name": "Longsword"
+    }
+  }
+}

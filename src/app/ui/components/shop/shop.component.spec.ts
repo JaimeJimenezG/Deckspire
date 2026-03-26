@@ -100,11 +100,11 @@ describe('ShopComponent', () => {
     expect(empty).toBeTruthy();
   });
 
-  it('debe mostrar la cantidad de oro del jugador', () => {
-    goldSignal.set(250);
+  it('debe mostrar botón de mazo en la cabecera', () => {
     fixture.detectChanges();
-    const goldEl = fixture.debugElement.query(By.css('.shop__gold-amount'));
-    expect(goldEl.nativeElement.textContent.trim()).toBe('250');
+    const deckBtn = fixture.debugElement.query(By.css('.shop__deck-btn'));
+    expect(deckBtn).toBeTruthy();
+    expect(deckBtn.nativeElement.textContent).toContain('Mazo');
   });
 
   // ── Ítems de carta ───────────────────────────────────────────────────────

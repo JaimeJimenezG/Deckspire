@@ -12,7 +12,10 @@ npm-debug.log
 yarn-error.log
 
 # IDEs and editors
-.cursor/
+.cursor/*
+!.cursor/rules/
+.cursor/rules/*
+!.cursor/rules/third-party-forks.mdc
 .idea/
 .project
 .classpath
@@ -42,6 +45,8 @@ package-lock.json
 /libpeerconnection.log
 testem.log
 /typings
+.penpot-chunks/
+.penpot-mcp-steps/
 
 # System files
 .DS_Store

@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "light",
+      "name": "Body color (light)"
+    },
+    "head": {
+      "itemId": "heads_human_male",
+      "variant": "taupe",
+      "name": "Human male (taupe)"
+    },
+    "expression": {
+      "itemId": "face_neutral",
+      "variant": "light",
+      "name": "Neutral (light)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "leather",
+      "name": "Longsleeve (leather)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "charcoal",
+      "name": "Cuffed Pants (charcoal)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "black",
+      "name": "Basic Shoes (black)"
+    },
+    "belt": {
+      "itemId": "belt_leather",
+      "variant": "brown",
+      "name": "Leather Belt (brown)"
+    },
+    "hat": {
+      "itemId": "hat_hood_cloth",
+      "variant": "hood_brown",
+      "name": "Hood (brown)"
+    },
+    "weapon": {
+      "itemId": "weapon_sword_scimitar",
+      "variant": "scimitar",
+      "name": "Scimitar"
+    }
+  }
+}

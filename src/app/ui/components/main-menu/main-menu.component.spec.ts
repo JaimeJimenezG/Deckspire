@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 import { MainMenuComponent } from './main-menu.component';
 import { GameStateStore } from '../../game-state.store';
 import type { GameStats } from '../../../domain/models/game-state.model';
@@ -52,7 +53,7 @@ async function createComponent(
 
   await TestBed.configureTestingModule({
     imports: [MainMenuComponent],
-    providers: [{ provide: GameStateStore, useValue: store }],
+    providers: [{ provide: GameStateStore, useValue: store }, provideRouter([])],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(MainMenuComponent);
@@ -75,7 +76,7 @@ describe('MainMenuComponent', () => {
     it('debe mostrar el título del juego', async () => {
       const { fixture } = await createComponent();
       const title = fixture.debugElement.query(By.css('.menu__title'));
-      expect(title.nativeElement.textContent).toContain('Dungeon');
+      expect(title.nativeElement.textContent).toContain('Deck');
     });
 
     it('debe mostrar el botón "Nueva partida"', async () => {

@@ -1,106 +1,108 @@
 <div class="menu">
+  <div class="menu__atmosphere" aria-hidden="true"></div>
+  <div class="menu__vignette" aria-hidden="true"></div>
 
-  <!-- Decoración de fondo -->
-  <div class="menu__bg-orbs" aria-hidden="true">
-    <span class="menu__orb menu__orb--1"></span>
-    <span class="menu__orb menu__orb--2"></span>
-    <span class="menu__orb menu__orb--3"></span>
-  </div>
-
-  <!-- Cabecera con título del juego -->
   <header class="menu__header">
-    <div class="menu__title-wrapper">
-      <h1 class="menu__title">Dungeon<span class="menu__title-accent">Spire</span></h1>
-      <p class="menu__subtitle">Construye tu mazo. Conquista la mazmorra.</p>
-    </div>
+    <p class="menu__chapter">Ascenso a la Torre</p>
+    <h1 class="menu__title">Deck<span class="menu__title-accent">spire</span></h1>
+    <p class="menu__subtitle">Un roguelike de cartas y decisiones.</p>
   </header>
 
-  <!-- Acciones principales -->
-  <nav class="menu__actions" aria-label="Menú principal">
-    <button
-      class="menu__btn menu__btn--primary"
-      [disabled]="loading()"
-      (click)="onNewGame()"
-      aria-label="Iniciar nueva partida">
-      @if (loading()) {
-        <span class="menu__btn-icon" aria-hidden="true">⏳</span>
-        Cargando…
-      } @else {
-        <span class="menu__btn-icon" aria-hidden="true">⚔</span>
-        Nueva partida
-      }
-    </button>
-
-    @if (hasSave()) {
+  <section class="menu__layout">
+    <nav class="menu__actions" aria-label="Menú principal">
       <button
-        class="menu__btn menu__btn--secondary"
+        class="menu__btn menu__btn--primary"
         [disabled]="loading()"
-        (click)="onContinue()"
-        aria-label="Continuar partida guardada">
-        <span class="menu__btn-icon" aria-hidden="true">▶</span>
-        Continuar
-      </button>
-    }
-
-    <button
-      class="menu__btn menu__btn--tertiary"
-      [class.menu__btn--active]="showStats()"
-      (click)="toggleStats()"
-      [attr.aria-expanded]="showStats()"
-      aria-controls="stats-panel"
-      aria-label="Ver estadísticas">
-      <span class="menu__btn-icon" aria-hidden="true">📊</span>
-      Estadísticas
-    </button>
-  </nav>
-
-  <!-- Panel de estadísticas -->
-  @if (showStats()) {
-    <section id="stats-panel" class="menu__stats" aria-label="Estadísticas acumuladas">
-      <h2 class="menu__stats-title">Estadísticas</h2>
-
-      @if (stats(); as s) {
-        <ul class="menu__stats-list">
-          <li class="menu__stat">
-            <span class="menu__stat-label">Partidas jugadas</span>
-            <span class="menu__stat-value">{{ s.gamesPlayed }}</span>
-          </li>
-          <li class="menu__stat">
-            <span class="menu__stat-label">Victorias</span>
-            <span class="menu__stat-value menu__stat-value--win">{{ s.wins }}</span>
-          </li>
-          <li class="menu__stat">
-            <span class="menu__stat-label">Derrotas</span>
-            <span class="menu__stat-value menu__stat-value--loss">{{ s.losses }}</span>
-          </li>
-          <li class="menu__stat">
-            <span class="menu__stat-label">Planta más alta alcanzada</span>
-            <span class="menu__stat-value menu__stat-value--gold">{{ s.highestFloorReached }}</span>
-          </li>
-          <li class="menu__stat">
-            <span class="menu__stat-label">Oro total ganado</span>
-            <span class="menu__stat-value menu__stat-value--gold">{{ s.totalGoldEarned }}</span>
-          </li>
-          <li class="menu__stat">
-            <span class="menu__stat-label">Daño total infligido</span>
-            <span class="menu__stat-value">{{ s.totalDamageDealt }}</span>
-          </li>
-        </ul>
-
-        @if (s.gamesPlayed > 0) {
-          <p class="menu__stats-winrate">
-            Tasa de victoria:
-            <strong>{{ ((s.wins / s.gamesPlayed) * 100) | number: '1.0-1' }}%</strong>
-          </p>
+        (click)="onNewGame()"
+        aria-label="Iniciar nueva partida">
+        @if (loading()) {
+          <span class="menu__btn-icon" aria-hidden="true">⏳</span>
+          Cargando...
+        } @else {
+          <span class="menu__btn-icon" aria-hidden="true">✦</span>
+          Nueva partida
         }
-      } @else {
-        <p class="menu__stats-empty">Cargando estadísticas…</p>
+      </button>
+
+      @if (hasSave()) {
+        <button
+          class="menu__btn menu__btn--secondary"
+          [disabled]="loading()"
+          (click)="onContinue()"
+          aria-label="Continuar partida guardada">
+          <span class="menu__btn-icon" aria-hidden="true">➤</span>
+          Continuar ascenso
+        </button>
       }
-    </section>
-  }
+
+      <button
+        class="menu__btn menu__btn--tertiary"
+        [class.menu__btn--active]="showStats()"
+        (click)="toggleStats()"
+        [attr.aria-expanded]="showStats()"
+        aria-controls="stats-panel"
+        aria-label="Ver estadísticas">
+        <span class="menu__btn-icon" aria-hidden="true">◈</span>
+        Crónicas
+      </button>
+    </nav>
+
+    <aside class="menu__side">
+      @if (showStats()) {
+        <section id="stats-panel" class="menu__stats" aria-label="Estadísticas acumuladas">
+          <h2 class="menu__stats-title">Crónicas del aventurero</h2>
+
+          @if (stats(); as s) {
+            <ul class="menu__stats-list">
+              <li class="menu__stat">
+                <span class="menu__stat-label">Partidas jugadas</span>
+                <span class="menu__stat-value">{{ s.gamesPlayed }}</span>
+              </li>
+              <li class="menu__stat">
+                <span class="menu__stat-label">Victorias</span>
+                <span class="menu__stat-value menu__stat-value--win">{{ s.wins }}</span>
+              </li>
+              <li class="menu__stat">
+                <span class="menu__stat-label">Derrotas</span>
+                <span class="menu__stat-value menu__stat-value--loss">{{ s.losses }}</span>
+              </li>
+              <li class="menu__stat">
+                <span class="menu__stat-label">Piso mas alto</span>
+                <span class="menu__stat-value menu__stat-value--gold">{{ s.highestFloorReached }}</span>
+              </li>
+              <li class="menu__stat">
+                <span class="menu__stat-label">Oro total ganado</span>
+                <span class="menu__stat-value menu__stat-value--gold">{{ s.totalGoldEarned }}</span>
+              </li>
+              <li class="menu__stat">
+                <span class="menu__stat-label">Dano infligido</span>
+                <span class="menu__stat-value">{{ s.totalDamageDealt }}</span>
+              </li>
+            </ul>
+
+            @if (s.gamesPlayed > 0) {
+              <p class="menu__stats-winrate">
+                Tasa de victoria:
+                <strong>{{ ((s.wins / s.gamesPlayed) * 100) | number: '1.0-1' }}%</strong>
+              </p>
+            }
+          } @else {
+            <p class="menu__stats-empty">Cargando cronicas...</p>
+          }
+        </section>
+      } @else {
+        <section class="menu__lore" aria-label="Descripción de la pantalla de inicio">
+          <h2 class="menu__lore-title">La Torre te observa</h2>
+          <p class="menu__lore-text">
+            Inicia tu ascenso a la Torre y descubre sus misterios. Cada decisión pesa. No hay dos ascensos iguales. ¡Que comience el juego!
+          </p>
+        </section>
+      }
+    </aside>
+  </section>
 
   <footer class="menu__footer">
-    <small class="menu__version">v0.1.0 — Arquitectura Hexagonal</small>
+    <small class="menu__version">v0.1.0</small>
+    <a routerLink="/credits" class="menu__credits-link">Creditos y licencias (LPC)</a>
   </footer>
-
 </div>

@@ -128,7 +128,7 @@ export const ALL_EVENTS: readonly GameEvent[] = [
         text: 'Ignorarle y seguir el camino',
         effects: [],
         outcomeText:
-          'Apartas la mirada y continúas tu ascenso. Sus gemidos se desvanecen a tu espalda. No todo en la Aguja puede salvarse.',
+          'Apartas la mirada y continúas tu ascenso. Sus gemidos se desvanecen a tu espalda. No todo en la Torre puede salvarse.',
       },
     ],
   },
