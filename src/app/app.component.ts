@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { GameContainerComponent } from './ui/components/game-container/game-container.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [GameContainerComponent],
-  template: '<app-game-container />',
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
   styles: [':host { display: block; width: 100%; height: 100%; }'],
 })
 export class AppComponent {}

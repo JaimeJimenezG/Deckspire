@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "combat",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "bronze",
+      "name": "Body color (bronze)"
+    },
+    "head": {
+      "itemId": "heads_minotaur",
+      "variant": "brown",
+      "name": "Minotaur (brown)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "leather",
+      "name": "Longsleeve (leather)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "brown",
+      "name": "Cuffed Pants (brown)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "brown",
+      "name": "Basic Shoes (brown)"
+    },
+    "belt": {
+      "itemId": "belt_leather",
+      "variant": "brown",
+      "name": "Leather Belt (brown)"
+    },
+    "weapon": {
+      "itemId": "weapon_blunt_mace",
+      "variant": "mace",
+      "name": "Mace"
+    }
+  }
+}

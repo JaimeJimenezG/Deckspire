@@ -181,12 +181,16 @@ describe('EndTurnUseCaseImpl', () => {
 
   // ── Enemy intent resolution ───────────────────────────────────────────────
 
-  it('should call animateDamage(0, amount) when enemy attacks the player', async () => {
+  it('should call animateDamage(0, amount, attacker) when enemy attacks the player', async () => {
     const state = makeGameState(makeActiveCombat({
       enemies: [makeEnemy({ currentIntent: attackIntent })],
     }));
     await useCase.execute(state);
-    expect(mockRenderer.animateDamage).toHaveBeenCalledWith(0, jasmine.any(Number));
+    expect(mockRenderer.animateDamage).toHaveBeenCalledWith(
+      0,
+      jasmine.any(Number),
+      jasmine.objectContaining({ attackerEnemyIdx: 0 }),
+    );
   });
 
   it('should reduce player HP when enemy uses a damage intent', async () => {

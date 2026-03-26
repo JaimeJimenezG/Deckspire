@@ -107,7 +107,8 @@ export function isSpriteAtlasManifest(value: unknown): value is SpriteAtlasManif
     return false;
   }
   const texture = o['texture'];
-  if (typeof texture !== 'string' || texture.length === 0) {
+  // Cadena vacía permitida: atlas “virtual” sobre un lienzo ya cargado (p. ej. composición LPC).
+  if (typeof texture !== 'string') {
     return false;
   }
   if (!isFramesRecord(o['frames'])) {

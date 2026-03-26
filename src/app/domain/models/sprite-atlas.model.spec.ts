@@ -7,10 +7,8 @@ import {
 describe('isSpriteAtlasManifest', () => {
   const minimalValid: SpriteAtlasManifest = {
     schemaVersion: SPRITE_ATLAS_MANIFEST_SCHEMA_VERSION,
-    texture: 'hero.png',
-    frames: {
-      'idle-0': { x: 0, y: 0, w: 32, h: 48 },
-    },
+    texture: 't.png',
+    frames: { a: { x: 0, y: 0, w: 1, h: 1 } },
   };
 
   it('should accept a minimal valid manifest', () => {
@@ -21,18 +19,24 @@ describe('isSpriteAtlasManifest', () => {
     const withAnim: SpriteAtlasManifest = {
       ...minimalValid,
       animations: {
-        idle: { frames: ['idle-0'], frameDurationSec: 0.2 },
+        idle: { frames: ['a'], frameDurationSec: 0.2 },
       },
     };
     expect(isSpriteAtlasManifest(withAnim)).toBe(true);
   });
 
-  it('should reject wrong schema version', () => {
+  it('should reject wrong schemaVersion', () => {
     expect(isSpriteAtlasManifest({ ...minimalValid, schemaVersion: 0 })).toBe(false);
     expect(isSpriteAtlasManifest({ ...minimalValid, schemaVersion: 2 })).toBe(false);
   });
 
-  it('should reject empty frames map', () => {
+  it('should reject invalid frames', () => {
+    expect(
+      isSpriteAtlasManifest({
+        ...minimalValid,
+        frames: { a: { x: 0, y: 0, w: 0, h: 10 } },
+      }),
+    ).toBe(false);
     expect(
       isSpriteAtlasManifest({
         ...minimalValid,
@@ -41,16 +45,7 @@ describe('isSpriteAtlasManifest', () => {
     ).toBe(false);
   });
 
-  it('should reject non-positive frame dimensions', () => {
-    expect(
-      isSpriteAtlasManifest({
-        ...minimalValid,
-        frames: { a: { x: 0, y: 0, w: 0, h: 10 } },
-      }),
-    ).toBe(false);
-  });
-
-  it('should reject animation with empty frames array', () => {
+  it('should reject invalid animations', () => {
     expect(
       isSpriteAtlasManifest({
         ...minimalValid,
@@ -59,7 +54,16 @@ describe('isSpriteAtlasManifest', () => {
     ).toBe(false);
   });
 
-  it('should reject non-object input', () => {
+  it('should accept empty texture string for inline atlases', () => {
+    expect(
+      isSpriteAtlasManifest({
+        ...minimalValid,
+        texture: '',
+      }),
+    ).toBe(true);
+  });
+
+  it('should reject non-objects', () => {
     expect(isSpriteAtlasManifest(null)).toBe(false);
     expect(isSpriteAtlasManifest('json')).toBe(false);
   });

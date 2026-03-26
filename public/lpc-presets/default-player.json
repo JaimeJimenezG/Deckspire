@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "bodyType": "male",
+  "selectedAnimation": "idle",
+  "selections": {
+    "body": {
+      "itemId": "body",
+      "variant": "light",
+      "name": "Body color (light)"
+    },
+    "head": {
+      "itemId": "heads_human_male",
+      "variant": "light",
+      "name": "Human male (light)"
+    },
+    "expression": {
+      "itemId": "face_neutral",
+      "variant": "light",
+      "name": "Neutral (light)"
+    },
+    "clothes": {
+      "itemId": "torso_clothes_longsleeve",
+      "variant": "forest",
+      "name": "Longsleeve (forest)"
+    },
+    "legs": {
+      "itemId": "legs_cuffed",
+      "variant": "brown",
+      "name": "Cuffed Pants (brown)"
+    },
+    "shoes": {
+      "itemId": "feet_shoes_basic",
+      "variant": "brown",
+      "name": "Basic Shoes (brown)"
+    },
+    "belt": {
+      "itemId": "belt_formal",
+      "variant": "brown",
+      "name": "Formal Belt (brown)"
+    }
+  }
+}

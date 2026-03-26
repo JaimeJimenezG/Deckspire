@@ -102,7 +102,9 @@ export class EndTurnUseCaseImpl implements EndTurnUseCase {
       // Animate player taking damage (targetIdx 0 = player).
       const damageTaken = prevPlayerHp - updatedPlayer.hp;
       if (damageTaken > 0) {
-        await this.renderer.animateDamage(0, damageTaken);
+        await this.renderer.animateDamage(0, damageTaken, {
+          attackerEnemyIdx: i,
+        });
       }
 
       // Animate enemy gaining block from its own intent (e.g. Jaw Worm Thrash).

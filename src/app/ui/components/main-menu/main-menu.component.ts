@@ -5,6 +5,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import type { GameStats } from '../../../domain/models/game-state.model';
 import { GameStateStore } from '../../game-state.store';
@@ -22,7 +23,7 @@ import { GameStateStore } from '../../game-state.store';
 @Component({
   selector: 'app-main-menu',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './main-menu.component.html',
   styleUrl: './main-menu.component.scss',
